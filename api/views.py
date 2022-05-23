@@ -32,3 +32,25 @@ class SignUpView(views.APIView):
             })
         else:
             return JsonResponse(serializer.errors)
+
+
+class LoginView(views.APIView):
+    serializer_class = LoginSerializer
+
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+
+        if serializer.is_valid():
+            user = serializer.validated_data['user']
+            refresh = serializer.validated_data['refresh']
+            access = serializer.validated_data['access']
+
+            return JsonResponse({
+                'user': user.username,
+                'is_voted': user.is_voted,
+                'refresh': refresh,
+                'access': access,
+            })
+
+        else:
+            return JsonResponse(serializer.errors)
