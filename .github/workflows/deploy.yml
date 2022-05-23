@@ -1,15 +1,11 @@
 name: Deploy to EC2
-on:
-  workflow_dispatch:
-  push:
-    branches:
-      -master
+on: [push]
 jobs:
 
   build:
     name: Build
     runs-on: ubuntu-latest
-    steps:
+    steps
     - name: checkout
       uses: actions/checkout@master
 
