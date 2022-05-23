@@ -1,4 +1,6 @@
 from rest_framework import serializers
+from rest_framework_simplejwt.tokens import RefreshToken
+
 from .models import *
 
 
@@ -36,3 +38,36 @@ class SignUpSerializer(serializers.ModelSerializer):
 
         return data
 
+
+class LoginSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(required=True)
+    password = serializers.CharField(required=True)
+
+    class Meta:
+        model = User
+        fields = ['username', 'password']
+
+    def validate(self, data):
+        username = data.get('username', None)
+        password = data.get('password', None)
+
+        if User.objects.filter(username=username).exists():
+            user = User.objects.get(username=username)
+
+            if not user.check_password(password):
+                raise serializers.ValidationError("Wrong password")
+
+            token = RefreshToken.for_user(user)
+            refresh = str(token)
+            access = str(token.access_token)
+
+            data = {
+                'user': user,
+                'refresh': refresh,
+                'access': access,
+            }
+
+            return data
+
+        else:
+            raise serializers.ValidationError("Invalid user")
