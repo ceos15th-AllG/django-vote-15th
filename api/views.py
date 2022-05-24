@@ -26,9 +26,10 @@ class SignUpView(views.APIView):
             access = str(token.access_token)
 
             return JsonResponse({
+                'message': 'Signup succeeded',
                 'user': user.username,
-                'refresh': refresh,
                 'access': access,
+                'refresh': refresh,
             })
         else:
             return JsonResponse(serializer.errors)
@@ -46,10 +47,11 @@ class LoginView(views.APIView):
             access = serializer.validated_data['access']
 
             return JsonResponse({
+                'message': 'Login succeeded',
                 'user': user.username,
                 'is_voted': user.is_voted,
-                'refresh': refresh,
                 'access': access,
+                'refresh': refresh,
             })
 
         else:
