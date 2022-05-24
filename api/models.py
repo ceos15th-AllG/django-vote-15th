@@ -8,10 +8,10 @@ class User(AbstractUser):
 
 
 class Candidate(models.Model):
-    name = models.CharField(max_length=10)
+    name = models.CharField(max_length=10, unique=True)
     count = models.PositiveIntegerField(default=0)
 
 
 class Vote(models.Model):
-    candidate_id = models.ForeignKey(Candidate, on_delete=models.CASCADE)
-    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
+    candidate_id = models.ForeignKey(Candidate, on_delete=models.CASCADE, related_name='votes')
+    user_id = models.ForeignKey(User, on_delete=models.CASCADE, related_name='votes')
