@@ -63,8 +63,8 @@ class LoginSerializer(serializers.ModelSerializer):
 
             data = {
                 'user': user,
-                'refresh': refresh,
                 'access': access,
+                'refresh': refresh,
             }
 
             return data

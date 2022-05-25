@@ -1,10 +1,9 @@
 from django.http import JsonResponse
 from rest_framework_simplejwt.tokens import RefreshToken
-
 from .serializers import *
 from .models import *
 from rest_framework import viewsets, views
-# Create your views here.
+from rest_framework.status import *
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -26,13 +25,13 @@ class SignUpView(views.APIView):
             access = str(token.access_token)
 
             return JsonResponse({
-                'message': 'Signup succeeded',
+                'message': 'Signup success',
                 'user': user.username,
                 'access': access,
                 'refresh': refresh,
-            })
+            }, status=HTTP_201_CREATED)
         else:
-            return JsonResponse(serializer.errors)
+            return JsonResponse(serializer.errors, status=HTTP_400_BAD_REQUEST)
 
 
 class LoginView(views.APIView):
@@ -47,12 +46,12 @@ class LoginView(views.APIView):
             access = serializer.validated_data['access']
 
             return JsonResponse({
-                'message': 'Login succeeded',
+                'message': 'Login success',
                 'user': user.username,
                 'is_voted': user.is_voted,
                 'access': access,
                 'refresh': refresh,
-            })
+            }, status=HTTP_200_OK)
 
         else:
-            return JsonResponse(serializer.errors)
+            return JsonResponse(serializer.errors, status=HTTP_400_BAD_REQUEST)
