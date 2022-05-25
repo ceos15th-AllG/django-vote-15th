@@ -22,3 +22,7 @@ class CandidateViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     filter_backends = [DjangoFilterBackend]
     filterset_class = CandidateFilter
 
+
+class VoteViewSet(viewsets.ModelViewSet):
+    serializer_class = VoteSerializer
+    queryset = Vote.objects.all().order_by('-created_at')
