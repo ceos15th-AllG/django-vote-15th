@@ -11,9 +11,9 @@ class BaseModel(models.Model):
 
 
 class User(BaseModel):
-    user_name = models.CharField(max_length=4)
+    user_name = models.CharField(max_length=6)
     password = models.CharField(max_length=20)
-    email = models.CharField(max_length=30)
+    email = models.CharField(max_length=30, unique=True)
     part = models.CharField(max_length=10)
 
     def __str__(self):
@@ -21,7 +21,7 @@ class User(BaseModel):
 
 
 class Candidate(BaseModel):
-    user_name = models.CharField(max_length=4)
+    user_name = models.CharField(max_length=6)
     age = models.PositiveIntegerField()
     part = models.CharField(max_length=10)
     vote_count = models.PositiveIntegerField(default=0)
