@@ -1,6 +1,9 @@
 from django_filters.rest_framework import FilterSet, filters
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, mixins, exceptions, permissions
+from rest_framework.views import APIView
+from rest_framework.parsers import JSONParser
+from rest_framework.response import Response
 from api.serializers import *
 
 
@@ -47,3 +50,26 @@ class VoteViewSet(viewsets.ModelViewSet):
             candidate.vote_count = candidate.vote_count + 1
             candidate.save()
             serializer.save()
+
+
+# class SignUpViewSet(viewsets.ModelViewSet):
+#     serializer_class = SignUpSerializer
+#     queryset = User.objects.all()
+#     permission_classes = []
+#
+#     def perform_create(self, serializer):
+#         data = JSONParser().parse(self.request)
+#         serializer = SignUpSerializer(data=data)
+#         if serializer.is_valid(raise_exception=True):
+#             serializer.save()
+#             return Response(serializer.data, status=201)
+
+class SignUpView(APIView):
+
+    def post(self, request):
+        data = JSONParser().parse(self.request)
+        serializer = SignUpSerializer(data=data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response(serializer.data, status=201)
+        return Response(serializer.errors, status=400)

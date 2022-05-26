@@ -12,8 +12,8 @@ class BaseModel(models.Model):
 
 class User(BaseModel):
     user_name = models.CharField(max_length=6)
-    password = models.CharField(max_length=20)
-    email = models.CharField(max_length=30, unique=True)
+    password = models.TextField()
+    email = models.EmailField(max_length=30, unique=True)
     part = models.CharField(max_length=10)
 
     def __str__(self):
