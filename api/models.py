@@ -17,7 +17,10 @@ class User(AbstractUser):
 
 class Candidate(models.Model):
     name = models.CharField(max_length=10, unique=True)
-    count = models.PositiveIntegerField(default=0)
+    count = models.PositiveIntegerField(blank=True, default=0)
+
+    def __str__(self):
+        return self.name
 
 
 class Vote(DateTime):
