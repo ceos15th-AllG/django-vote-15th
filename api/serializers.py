@@ -63,11 +63,30 @@ class LoginSerializer(serializers.ModelSerializer):
 
             data = {
                 'user': user,
-                'refresh': refresh,
                 'access': access,
+                'refresh': refresh,
             }
 
             return data
 
         else:
             raise serializers.ValidationError("Invalid user")
+
+
+class VoteSerializer(serializers.ModelSerializer):
+    candidate_name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Vote
+        fields = ['id', 'candidate', 'candidate_name', 'user', 'created_at', 'updated_at']
+
+    def get_candidate_name(self, obj):
+        return obj.candidate.name
+
+
+class CandidateSerializer(serializers.ModelSerializer):
+    votes = VoteSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Candidate
+        fields = ['id', 'name', 'count', 'votes']

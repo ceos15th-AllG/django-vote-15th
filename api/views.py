@@ -1,10 +1,10 @@
 from django.http import JsonResponse
-from rest_framework_simplejwt.tokens import RefreshToken
-
+from django.shortcuts import get_object_or_404
 from .serializers import *
 from .models import *
-from rest_framework import viewsets, views
-# Create your views here.
+from rest_framework import viewsets, views, permissions, exceptions
+from rest_framework.status import *
+from rest_framework.response import Response
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -26,13 +26,13 @@ class SignUpView(views.APIView):
             access = str(token.access_token)
 
             return JsonResponse({
-                'message': 'Signup succeeded',
+                'message': 'Signup Success',
                 'user': user.username,
                 'access': access,
                 'refresh': refresh,
-            })
+            }, status=HTTP_201_CREATED)
         else:
-            return JsonResponse(serializer.errors)
+            return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
 
 
 class LoginView(views.APIView):
@@ -47,12 +47,78 @@ class LoginView(views.APIView):
             access = serializer.validated_data['access']
 
             return JsonResponse({
-                'message': 'Login succeeded',
+                'message': 'Login Success',
                 'user': user.username,
-                'is_voted': user.is_voted,
                 'access': access,
                 'refresh': refresh,
-            })
+                'is_voted': user.is_voted,
+            }, status=HTTP_200_OK)
 
         else:
-            return JsonResponse(serializer.errors)
+            return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
+
+
+class VoteListView(views.APIView):
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    def get(self, request):
+        candidates = Candidate.objects.all().order_by('-count')  # 내림차순
+        serializer = CandidateSerializer(candidates, many=True)
+
+        return Response(serializer.data, status=HTTP_200_OK)
+
+    def post(self, request):
+        user = get_object_or_404(User, pk=request.user.id)
+        candidate_id = request.query_params.get('candidate')
+        if (not candidate_id):
+            return JsonResponse({'message': 'Invalid Query Parameters'}, status=HTTP_400_BAD_REQUEST)
+        candidate = get_object_or_404(Candidate, pk=candidate_id)
+
+        data = {'candidate': candidate.id, 'user': user.id}
+        vote_serializer = VoteSerializer(data=data)
+
+        if not vote_serializer.is_valid():
+            return Response(vote_serializer.errors, status=HTTP_400_BAD_REQUEST)
+        if user.is_voted:
+            return JsonResponse({'message': 'You have already voted'}, status=HTTP_409_CONFLICT)
+
+        candidate.count += 1
+        candidate.save()
+        user.is_voted = True
+        user.save()
+        vote_serializer.save()
+        return JsonResponse({'message': 'Successfully Voted'}, status=HTTP_201_CREATED)
+
+
+class VoteDetailView(views.APIView):
+    def get_object(self, pk):
+        return get_object_or_404(Candidate, pk=pk)
+
+    def get(self, request, pk):
+        candidate = self.get_object(pk)
+        serializer = CandidateSerializer(candidate)
+
+        return Response(serializer.data, status=HTTP_200_OK)
+
+
+class CandidateView(views.APIView):
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    def post(self, request):
+        serializer = CandidateSerializer(data=request.data)
+
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
+
+        name = serializer.validated_data['name']
+
+        if Candidate.objects.filter(name=name).exists():
+            return exceptions.ParseError()
+
+        serializer.save()
+        return JsonResponse({
+            'message': 'Successfully Created',
+            'id': serializer.data['id'],
+            'name': serializer.data['name'],
+            'count': serializer.data['count'],
+        }, status=HTTP_201_CREATED)
