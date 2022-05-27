@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 
 
 class BaseModel(models.Model):
@@ -10,14 +11,56 @@ class BaseModel(models.Model):
         abstract = True
 
 
-class User(BaseModel):
-    user_name = models.CharField(max_length=6)
+class UserManager(BaseUserManager):
+    def create_user(self, name, email, password):
+        if not name:
+            raise ValueError('이름을 꼭 써주세요')
+        elif not email:
+            raise ValueError('이메일을 꼭 써주세요')
+        user = self.model(
+            name=name,
+            email=self.normalize_email(email),
+        )
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, name, email, password):
+        user = self.create_user(
+            name=name,
+            email=self.normalize_email(email),
+        )
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+
+class MyUser(AbstractBaseUser):
+    name = models.CharField(max_length=6)
+    email = models.CharField(max_length=30, unique=True)
     password = models.TextField()
-    email = models.EmailField(max_length=30, unique=True)
-    part = models.CharField(max_length=10)
+    part = models.CharField(max_length=3)
+
+    objects = UserManager()
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['name', 'password', 'part']
 
     def __str__(self):
-        return '{} : {}'.format(self.user_name, self.part)
+        return self.name
+
+
+# class MyUser(BaseModel):
+#     user_name = models.CharField(max_length=6)
+#     password = models.TextField()
+#     email = models.EmailField(max_length=30, unique=True)
+#     part = models.CharField(max_length=10)
+#
+#     REQUIRED_FIELDS = ['user_name', 'password', 'email', 'part']
+#     USERNAME_FIELD = 'email'
+#
+#     def __str__(self):
+#         return '{} : {}'.format(self.user_name, self.part)
 
 
 class Candidate(BaseModel):
@@ -32,7 +75,7 @@ class Candidate(BaseModel):
 
 class Vote(BaseModel):
     candidate = models.ForeignKey(Candidate, on_delete=models.CASCADE, related_name='candidate_votes')
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_votes')
+    user = models.ForeignKey(MyUser, on_delete=models.CASCADE, related_name='user_votes')
 
     def __str__(self):
         return '{} : {}'.format(self.candidate.user_name, self.user.user_name)
