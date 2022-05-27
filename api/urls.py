@@ -5,7 +5,6 @@ from .views import *
 router = routers.DefaultRouter()
 router.register(r'candidates', CandidateViewSet)
 router.register(r'votes', VoteViewSet)
-# urlpatterns = router.urls
 
 urlpatterns = [
     path('', include(router.urls)),

@@ -1,19 +1,11 @@
-from django.contrib.auth import authenticate
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, TokenRefreshSerializer
 
-import django_rest_framework_15th.settings.base
 from api.models import *
 from django.contrib.auth.hashers import *
-from rest_framework_jwt.settings import api_settings
-# from rest_framework_simplejwt.settings import api_settings
 
 
 class SignUpSerializer(serializers.ModelSerializer):
-    # user_name = serializers.CharField(required=True)
-    # email = serializers.EmailField(required=True)
-    # password = serializers.CharField(required=True)
-    # part = serializers.CharField(required=True)
 
     class Meta:
         model = MyUser
@@ -27,7 +19,7 @@ class SignUpSerializer(serializers.ModelSerializer):
             name=validated_data['name'],
             password=password,
             email=validated_data['email'],
-            part=validated_data['part']
+            part=validated_data['part'],
         )
         user.save()
         return user
@@ -79,14 +71,6 @@ class SignInSerializer(serializers.ModelSerializer):
                     'refresh_token': refresh_token
                 }
             }
-
-        # else:
-        #     try:
-        #         payload = JWT_PAYLOAD_HANDLER(user)
-        #         jwt_token = JWT_ENCODE_HANDLER(payload)  # 토큰 발행
-        #     except MyUser.DoesNotExist:
-        #         raise serializers.ValidationError('존재하지 않는 사용자입니다.', code=400)
-        #
 
 
 class VoteSerializer(serializers.ModelSerializer):

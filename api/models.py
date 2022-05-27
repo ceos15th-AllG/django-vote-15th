@@ -50,23 +50,11 @@ class MyUser(AbstractBaseUser):
         return self.name
 
 
-# class MyUser(BaseModel):
-#     user_name = models.CharField(max_length=6)
-#     password = models.TextField()
-#     email = models.EmailField(max_length=30, unique=True)
-#     part = models.CharField(max_length=10)
-#
-#     REQUIRED_FIELDS = ['user_name', 'password', 'email', 'part']
-#     USERNAME_FIELD = 'email'
-#
-#     def __str__(self):
-#         return '{} : {}'.format(self.user_name, self.part)
-
-
 class Candidate(BaseModel):
     user_name = models.CharField(max_length=6)
     age = models.PositiveIntegerField()
     part = models.CharField(max_length=10)
+    team = models.CharField(max_length=15, default='')
     vote_count = models.PositiveIntegerField(default=0)
 
     def __str__(self):
