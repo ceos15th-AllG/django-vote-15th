@@ -8,12 +8,6 @@ services:
       dockerfile: Dockerfile.prod
     command: gunicorn django_vote.wsgi:application --bind 0.0.0.0:8000 --timeout=120
     environment:
-      MYSQL_ROOT_PASSWORD: mysql
-      DATABASE_NAME: ceos15
-      DATABASE_USER: 'sanbonai06'
-      DATABASE_PASSWORD: yohan72301107
-      DATABASE_PORT: 3306
-      DATABASE_HOST: ceos15.cr4dfwywvfh6.ap-northeast-2.rds.amazonaws.com
       DJANGO_SETTINGS_MODULE: django_vote.settings.prod
     env_file:
       - .env
