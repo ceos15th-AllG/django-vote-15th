@@ -8,12 +8,6 @@ services:
       dockerfile: Dockerfile.prod
     command: gunicorn django_vote.wsgi:application --bind 0.0.0.0:8000 --timeout=120
     environment:
-      MYSQL_ROOT_PASSWORD: mysql
-      DATABASE_NAME: mysql
-      DATABASE_USER: 'root'
-      DATABASE_PASSWORD: mysql
-      DATABASE_PORT: 3306
-      DATABASE_HOST: db
       DJANGO_SETTINGS_MODULE: django_vote.settings.prod
     env_file:
       - .env
@@ -21,7 +15,7 @@ services:
       - static:/home/app/web/Zstatic
       - media:/home/app/web/media
     expose:
-      - 8000
+      - "8000:8000"
     entrypoint:
       - sh
       - config/docker/entrypoint.prod.sh
