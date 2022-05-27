@@ -9,5 +9,6 @@ router.register(r'votes', VoteViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
-    path('signups/', SignUpView.as_view())
+    path('users/signups/', SignUpView.as_view()),
+    path('users/logins/', SignInView.as_view()),
 ]
