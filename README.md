@@ -13,10 +13,10 @@
 ### 투표
 1. 후보 투표 결과 조회 [FE/BE] (득표 수 내림차순)
 > URI: /api/candidates/?part=FE `GET`
-![image](https://user-images.githubusercontent.com/63996052/170424396-308b155f-e21a-4cfd-877a-5a86c59dbc0c.png)
+![image](https://user-images.githubusercontent.com/63996052/170671996-afa4b312-5cfc-4771-92ab-f5e45cc7c884.png)
 
 > URI: /api/candidates/?part=BE `GET`
-![image](https://user-images.githubusercontent.com/63996052/170424423-279b07c6-ac7a-49d6-94f6-2ab5f5a2bc4b.png)
+![image](https://user-images.githubusercontent.com/63996052/170671946-83bb6bcd-df9e-4310-9a66-8d830177f9f3.png)
 
 2. 후보 투표 (중복 투표 불가능, 로그인한 유저만 투표 가능)
 > URI: /api/votes `POST`
