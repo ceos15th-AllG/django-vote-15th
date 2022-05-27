@@ -32,7 +32,7 @@ class VotePermission(permissions.BasePermission):
         if request.method == 'GET':
             return True
         else:
-            return True # 유저 구현 후 request.user.is_authenticated로 변경 필요
+            return request.user.is_authenticated
 
 
 class VoteViewSet(viewsets.ModelViewSet):
