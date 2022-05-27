@@ -12,7 +12,7 @@ class BaseModel(models.Model):
 
 
 class UserManager(BaseUserManager):
-    def create_user(self, name, email, password):
+    def create_user(self, name, email, password=None):
         if not name:
             raise ValueError('이름을 꼭 써주세요')
         elif not email:
@@ -44,7 +44,7 @@ class MyUser(AbstractBaseUser):
     objects = UserManager()
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['name', 'password', 'part']
+    REQUIRED_FIELDS = ['name', 'password']
 
     def __str__(self):
         return self.name
