@@ -9,7 +9,7 @@ class SignUpSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = MyUser
-        fields = ['name', 'email', 'password', 'part', 'team']
+        fields = ['name', 'email', 'password', 'part']
 
     def create(self, validated_data):
         if len(validated_data['password']) > 15 or len(validated_data['password']) < 8:
@@ -20,7 +20,6 @@ class SignUpSerializer(serializers.ModelSerializer):
             password=password,
             email=validated_data['email'],
             part=validated_data['part'],
-            team=validated_data['team']
         )
         user.save()
         return user
@@ -37,7 +36,6 @@ class SignUpSerializer(serializers.ModelSerializer):
             'name': user.name,
             'email': user.email,
             'part': user.part,
-            'team': user.team,
             'token': {
                 'access_token': access_token,
                 'refresh_token': refresh_token
@@ -68,7 +66,6 @@ class SignInSerializer(serializers.ModelSerializer):
                 'name': user.name,
                 'email': user.email,
                 'part': user.part,
-                'team': user.team,
                 'token': {
                     'access_token': access_token,
                     'refresh_token': refresh_token
