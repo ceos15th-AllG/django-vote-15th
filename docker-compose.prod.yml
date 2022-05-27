@@ -6,13 +6,13 @@ services:
     build:
       context: ./
       dockerfile: Dockerfile.prod
-    command: gunicorn django_rest_framework_15th.wsgi:application --bind 0.0.0.0:8000
+    command: gunicorn django_vote.wsgi:application --bind 0.0.0.0:8000
     environment:
-      DJANGO_SETTINGS_MODULE: django_rest_framework_15th.settings.prod
+      DJANGO_SETTINGS_MODULE: django_vote.settings.prod
     env_file:
       - .env
     volumes:
-      - static:/home/app/web/static
+      - static:/home/app/web/Zstatic
       - media:/home/app/web/media
     expose:
       - 8000
