@@ -1,5 +1,14 @@
 # django-vote-15th
 
+### 회원가입, 로그인
+1. 유저 회원가입
+> URI: /api/users/signups
+![스크린샷 2022-05-27 오후 3 57 24](https://user-images.githubusercontent.com/59060780/170649038-e7cb924b-418d-49d5-9f75-c84045dc7777.png)
+
+2. 유저 로그인
+> URI: /api/users/logins
+![스크린샷 2022-05-27 오후 3 57 31](https://user-images.githubusercontent.com/59060780/170649095-24e303aa-e6ef-408a-8d4e-ae37046e18bc.png)
+
 
 ### 투표
 1. 후보 투표 결과 조회 [FE/BE] (득표 수 내림차순)
