@@ -1,23 +1,15 @@
-from django.contrib.auth import authenticate
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, TokenRefreshSerializer
 
-import django_rest_framework_15th.settings.base
 from api.models import *
 from django.contrib.auth.hashers import *
-from rest_framework_jwt.settings import api_settings
-# from rest_framework_simplejwt.settings import api_settings
 
 
 class SignUpSerializer(serializers.ModelSerializer):
-    # user_name = serializers.CharField(required=True)
-    # email = serializers.EmailField(required=True)
-    # password = serializers.CharField(required=True)
-    # part = serializers.CharField(required=True)
 
     class Meta:
         model = MyUser
-        fields = ['name', 'email', 'password', 'part']
+        fields = ['name', 'email', 'password', 'part', 'team']
 
     def create(self, validated_data):
         if len(validated_data['password']) > 15 or len(validated_data['password']) < 8:
@@ -27,7 +19,8 @@ class SignUpSerializer(serializers.ModelSerializer):
             name=validated_data['name'],
             password=password,
             email=validated_data['email'],
-            part=validated_data['part']
+            part=validated_data['part'],
+            team=validated_data['team']
         )
         user.save()
         return user
@@ -44,6 +37,7 @@ class SignUpSerializer(serializers.ModelSerializer):
             'name': user.name,
             'email': user.email,
             'part': user.part,
+            'team': user.team,
             'token': {
                 'access_token': access_token,
                 'refresh_token': refresh_token
@@ -74,19 +68,12 @@ class SignInSerializer(serializers.ModelSerializer):
                 'name': user.name,
                 'email': user.email,
                 'part': user.part,
+                'team': user.team,
                 'token': {
                     'access_token': access_token,
                     'refresh_token': refresh_token
                 }
             }
-
-        # else:
-        #     try:
-        #         payload = JWT_PAYLOAD_HANDLER(user)
-        #         jwt_token = JWT_ENCODE_HANDLER(payload)  # 토큰 발행
-        #     except MyUser.DoesNotExist:
-        #         raise serializers.ValidationError('존재하지 않는 사용자입니다.', code=400)
-        #
 
 
 class VoteSerializer(serializers.ModelSerializer):
