@@ -69,7 +69,10 @@ class VoteListView(views.APIView):
 
     def post(self, request):
         user = get_object_or_404(User, pk=request.user.id)
-        candidate = get_object_or_404(Candidate, pk=request.query_params.get('candidate'))  # querystring
+        candidate_id = request.query_params.get('candidate')
+        if (not candidate_id):
+            return JsonResponse({'message': 'Invalid Query Parameters'}, status=HTTP_400_BAD_REQUEST)
+        candidate = get_object_or_404(Candidate, pk=candidate_id)
 
         data = {'candidate': candidate.id, 'user': user.id}
         vote_serializer = VoteSerializer(data=data)
