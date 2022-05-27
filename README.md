@@ -1,5 +1,10 @@
 # django-vote-15th
 
+### Erd 구성
+<img width="1038" alt="스크린샷 2022-05-27 오후 9 01 01" src="https://user-images.githubusercontent.com/59060780/170695491-b80cc391-e290-4fcf-a7d2-65e53850b5c6.png">
+
+https://www.erdcloud.com/d/QfRE7RTFGHdbL85uG
+
 ### 회원가입, 로그인
 1. 유저 회원가입
 > URI: /api/users/signups `POST`
