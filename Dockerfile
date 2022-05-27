@@ -1,6 +1,7 @@
 FROM python:3.8.3-alpine
 ENV PYTHONUNBUFFERED 1
 
+# app 디렉토리 내부에서 작업
 RUN mkdir /app
 WORKDIR /app
 

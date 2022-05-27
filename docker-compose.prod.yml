@@ -12,7 +12,7 @@ services:
     env_file:
       - .env
     volumes:
-      - static:/home/app/web/static
+      - static:/home/app/web/Zstatic
       - media:/home/app/web/media
     expose:
       - 8000
