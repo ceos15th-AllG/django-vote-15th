@@ -59,7 +59,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'django_rest_framework_15th.urls'
+ROOT_URLCONF = 'django_vote.urls'
 
 TEMPLATES = [
     {
@@ -77,7 +77,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'django_rest_framework_15th.wsgi.application'
+WSGI_APPLICATION = 'django_vote.wsgi.application'
 
 
 # Password validation
