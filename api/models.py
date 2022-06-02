@@ -3,7 +3,7 @@ from django.contrib.auth.models import AbstractUser
 
 
 class Voter(AbstractUser):
-    email = models.CharField(max_length=20, unique=True)
+    email = models.CharField(max_length=30, unique=True)
     voter_state = models.BooleanField(default=False)
 
     def __str__(self):
