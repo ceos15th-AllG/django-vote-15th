@@ -11,4 +11,4 @@
 
 <img width="673" alt="스크린샷 2022-05-26 오전 9 26 00" src="https://user-images.githubusercontent.com/78442839/170390704-e4f1ba60-c2af-4db4-987d-46cd9f859572.png">
 
-- 각 유저는 무조건 한 번씩만 투표 가능
+- 각 유저는 무조건 한 번씩만 투표 가능.
