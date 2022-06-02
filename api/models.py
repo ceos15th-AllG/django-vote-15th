@@ -4,7 +4,7 @@ from django.contrib.auth.models import AbstractUser
 
 class Voter(AbstractUser):
     email = models.CharField(max_length=20, unique=True)
-    voter_state = models.BoolField(default=False)
+    voter_state = models.BooleanField(default=False)
 
     def __str__(self):
         return '[{}] {}'.format(self.id, self.username)
