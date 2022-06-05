@@ -6,6 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
+        ('api', '0002_add_blank_option'),
     ]
 
     operations = [
