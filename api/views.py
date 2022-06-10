@@ -39,6 +39,11 @@ class Signup(APIView):
 
 
 class Vote(APIView):
+    def get(self, request):  # vote 현황 가져오기
+        candidates = Candidate.objects.all().order_by('-vote_cnt')
+        serializer = CandidateSerializer(candidates, many=True)
+        return Response(serializer.data)
+
     def post(self, request):
         candidate_name = self.request.data['candidate']
         candidate = Candidate.objects.get(candidate_name=candidate_name)
