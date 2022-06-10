@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from api.models import Voter
+from api.models import *
 
 
 class SignupSerializer(serializers.ModelSerializer):
@@ -16,3 +16,9 @@ class SignupSerializer(serializers.ModelSerializer):
         )
         voter.save()
         return voter
+
+
+class VoteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Vote
+        fields = ['voter', 'candidate']
