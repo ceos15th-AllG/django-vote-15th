@@ -18,9 +18,3 @@ class Candidate(models.Model):
 
     def __str__(self):
         return '[{}] {}'.format(self.part, self.candidate_name)
-
-
-class Vote():
-    candidate = models.ForeignKey(Candidate, on_delete=models.CASCADE)
-    voter = models.ForeignKey(Voter, on_delete=models.CASCADE)
-    created_at = models.DateTimeField(auto_now_add=True)

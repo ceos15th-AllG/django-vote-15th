@@ -18,12 +18,7 @@ class SignupSerializer(serializers.ModelSerializer):
         return voter
 
 
-class VoteSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Vote
-        fields = ['voter', 'candidate']
-
 class CandidateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Candidate
-        fields = ['candidate_name', 'vote_cnt']
+        fields = '__all__'
