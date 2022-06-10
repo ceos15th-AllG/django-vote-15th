@@ -24,7 +24,6 @@ class Signup(APIView):
             res = Response(
                 {
                     "username": voter.username,
-                    "password": voter.password,
                     "email": voter.email,
                     "message": "success!",
                     "token": {
