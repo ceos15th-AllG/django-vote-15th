@@ -6,9 +6,8 @@ from rest_framework import viewsets, views, permissions, exceptions
 from rest_framework.status import *
 from rest_framework.response import Response
 import jwt
-import os, environ
+import environ
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 env = environ.Env(
     DEBUG=(bool, False)
 )
