@@ -95,7 +95,7 @@ class VotePermission(permissions.BasePermission):
                 request.user = user
                 return True
             else:
-                return False
+                return exceptions.AuthenticationFailed()
 
 
 class VoteListView(views.APIView):
@@ -110,8 +110,6 @@ class VoteListView(views.APIView):
     def post(self, request):
         user = get_object_or_404(User, pk=request.user.id)
         candidate_id = request.data['candidate']
-        if not candidate_id:
-            return JsonResponse({'message': 'Invalid Candidate'}, status=HTTP_400_BAD_REQUEST)
         candidate = get_object_or_404(Candidate, pk=candidate_id)
 
         data = {'candidate': candidate.id, 'user': user.id}
@@ -153,7 +151,7 @@ class CandidatePermission(permissions.BasePermission):
                 request.user = user
                 return True
             else:
-                return False
+                return exceptions.AuthenticationFailed()
 
 
 class CandidateView(views.APIView):
