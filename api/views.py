@@ -52,8 +52,8 @@ class LoginView(views.APIView):
                 'is_voted': user.is_voted,
             }, status=HTTP_200_OK)
 
-            response.set_cookie('access_token', access)
-            response.set_cookie('refresh_token', refresh)
+            response.set_cookie('access_token', access, max_age=60*60*3)
+            response.set_cookie('refresh_token', refresh, max_age=60*60*24*14)
 
             return response
 
