@@ -8,13 +8,10 @@ from rest_framework.response import Response
 import jwt
 import os, environ
 
-
-# .env
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 env = environ.Env(
     DEBUG=(bool, False)
 )
-
 
 class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
@@ -72,6 +69,18 @@ class LoginView(views.APIView):
 
         else:
             return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
+
+
+class LogoutView(views.APIView):
+    def post(self, request):
+        response = JsonResponse({
+            'message': 'Logout Success',
+        }, status=HTTP_200_OK)
+
+        response.delete_cookie('access_token')
+        response.delete_cookie('refresh_token')
+
+        return response
 
 
 class VotePermission(permissions.BasePermission):
