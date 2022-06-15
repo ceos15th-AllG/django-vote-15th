@@ -85,7 +85,9 @@ class LogoutView(views.APIView):
 
 class VotePermission(permissions.BasePermission):
     def has_permission(self, request, view):
-        if request.method == 'POST':
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        else:
             if request.COOKIES['access_token']:
                 access = request.COOKIES['access_token']
                 payload = jwt.decode(access, env('DJANGO_SECRET_KEY'), algorithms=['HS256'])
@@ -94,8 +96,6 @@ class VotePermission(permissions.BasePermission):
                 return True
             else:
                 return False
-        else:
-            return True
 
 
 class VoteListView(views.APIView):
@@ -143,7 +143,9 @@ class VoteDetailView(views.APIView):
 
 class CandidatePermission(permissions.BasePermission):
     def has_permission(self, request, view):
-        if request.method == 'POST':
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        else:
             if request.COOKIES['access_token']:
                 access = request.COOKIES['access_token']
                 payload = jwt.decode(access, env('DJANGO_SECRET_KEY'), algorithms=['HS256'])
@@ -152,8 +154,6 @@ class CandidatePermission(permissions.BasePermission):
                 return True
             else:
                 return False
-        else:
-            return True
 
 
 class CandidateView(views.APIView):
