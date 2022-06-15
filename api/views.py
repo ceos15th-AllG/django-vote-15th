@@ -25,12 +25,16 @@ class SignUpView(views.APIView):
             refresh = str(token)
             access = str(token.access_token)
 
-            return JsonResponse({
+            response = JsonResponse({
                 'message': 'Signup Success',
                 'user': user.username,
-                'access': access,
-                'refresh': refresh,
             }, status=HTTP_201_CREATED)
+
+            response.set_cookie('access_token', access, max_age=60 * 60 * 3)
+            response.set_cookie('refresh_token', refresh, max_age=60 * 60 * 24 * 14)
+
+            return response
+
         else:
             return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
 
