@@ -145,13 +145,9 @@ class CandidatePermission(permissions.BasePermission):
             return True
         else:
             if request.COOKIES.get('access_token'):
-                access = request.COOKIES['access_token']
-                payload = jwt.decode(access, env('DJANGO_SECRET_KEY'), algorithms=['HS256'])
-                user = get_object_or_404(User, pk=payload['user_id'])
-                request.user = user
                 return True
             else:
-                return exceptions.AuthenticationFailed()
+                return False
 
 
 class CandidateView(views.APIView):
