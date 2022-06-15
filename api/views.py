@@ -5,6 +5,15 @@ from .models import *
 from rest_framework import viewsets, views, permissions, exceptions
 from rest_framework.status import *
 from rest_framework.response import Response
+import jwt
+import os, environ
+
+
+# .env
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+env = environ.Env(
+    DEBUG=(bool, False)
+)
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -30,8 +39,8 @@ class SignUpView(views.APIView):
                 'user': user.username,
             }, status=HTTP_201_CREATED)
 
-            response.set_cookie('access_token', access, max_age=60 * 60 * 3)
-            response.set_cookie('refresh_token', refresh, max_age=60 * 60 * 24 * 14)
+            response.set_cookie('access_token', access)
+            response.set_cookie('refresh_token', refresh)
 
             return response
 
@@ -56,8 +65,8 @@ class LoginView(views.APIView):
                 'is_voted': user.is_voted,
             }, status=HTTP_200_OK)
 
-            response.set_cookie('access_token', access, max_age=60*60*3)
-            response.set_cookie('refresh_token', refresh, max_age=60*60*24*14)
+            response.set_cookie('access_token', access)
+            response.set_cookie('refresh_token', refresh)
 
             return response
 
@@ -65,8 +74,23 @@ class LoginView(views.APIView):
             return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
 
 
+class VotePermission(permissions.BasePermission):
+    def has_permission(self, request, view):
+        if request.method == 'POST':
+            if request.COOKIES['access_token']:
+                access = request.COOKIES['access_token']
+                payload = jwt.decode(access, env('DJANGO_SECRET_KEY'), algorithms=['HS256'])
+                user = get_object_or_404(User, pk=payload['user_id'])
+                request.user = user
+                return True
+            else:
+                return False
+        else:
+            return True
+
+
 class VoteListView(views.APIView):
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [VotePermission]
 
     def get(self, request):
         candidates = Candidate.objects.all().order_by('-count')  # 내림차순
@@ -76,9 +100,9 @@ class VoteListView(views.APIView):
 
     def post(self, request):
         user = get_object_or_404(User, pk=request.user.id)
-        candidate_id = request.query_params.get('candidate')
-        if (not candidate_id):
-            return JsonResponse({'message': 'Invalid Query Parameters'}, status=HTTP_400_BAD_REQUEST)
+        candidate_id = request.data['candidate']
+        if not candidate_id:
+            return JsonResponse({'message': 'Invalid Candidate'}, status=HTTP_400_BAD_REQUEST)
         candidate = get_object_or_404(Candidate, pk=candidate_id)
 
         data = {'candidate': candidate.id, 'user': user.id}
@@ -108,8 +132,23 @@ class VoteDetailView(views.APIView):
         return Response(serializer.data, status=HTTP_200_OK)
 
 
+class CandidatePermission(permissions.BasePermission):
+    def has_permission(self, request, view):
+        if request.method == 'POST':
+            if request.COOKIES['access_token']:
+                access = request.COOKIES['access_token']
+                payload = jwt.decode(access, env('DJANGO_SECRET_KEY'), algorithms=['HS256'])
+                user = get_object_or_404(User, pk=payload['user_id'])
+                request.user = user
+                return True
+            else:
+                return False
+        else:
+            return True
+
+
 class CandidateView(views.APIView):
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [CandidatePermission]
 
     def post(self, request):
         serializer = CandidateSerializer(data=request.data)
