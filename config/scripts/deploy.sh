@@ -24,5 +24,4 @@ then
 fi
 
 echo "start docker-compose up: ubuntu"
-sudo docker-compose -f /home/ubuntu/srv/django-vote/docker-compose.prod.yml pull
 sudo docker-compose -f /home/ubuntu/srv/django-vote/docker-compose.prod.yml up --build -d

@@ -2,12 +2,11 @@ version: '3'
 services:
 
   web:
-    container_name: vote_backend
+    container_name: web
     build:
       context: ./
       dockerfile: Dockerfile.prod
-#    command: gunicorn django_vote.wsgi:application --bind 0.0.0.0:8000 --timeout=120
-    command: gunicorn --bind=0.0.0.0:8000 django_vote.wsgi:application --timeout=120
+    command: gunicorn django_vote.wsgi:application --bind 0.0.0.0:8000 --timeout=120
     environment:
       DJANGO_SETTINGS_MODULE: django_vote.settings.prod
     env_file:
@@ -28,7 +27,7 @@ services:
       - static:/home/app/web/static
       - media:/home/app/web/media
     ports:
-      - "80:8000"
+      - "80:80"
     depends_on:
       - web
 
