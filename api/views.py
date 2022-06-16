@@ -1,5 +1,5 @@
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, render
 from .serializers import *
 from .models import *
 from rest_framework import viewsets, views, permissions, exceptions
@@ -30,13 +30,16 @@ class SignUpView(views.APIView):
             refresh = str(token)
             access = str(token.access_token)
 
+            # request.session['access_token'] = access
+            # request.session['refresh_token'] = refresh
+
             response = JsonResponse({
                 'message': 'Signup Success',
                 'user': user.username,
             }, status=HTTP_201_CREATED)
 
-            response.set_cookie('access_token', access)
-            response.set_cookie('refresh_token', refresh)
+            response.set_cookie('access_token', access, domain='http://localhost:3000', httponly=False, samesite=None)
+            response.set_cookie('refresh_token', refresh, domain='http://localhost:3000', httponly=False, samesite=None)
 
             return response
 
@@ -55,14 +58,17 @@ class LoginView(views.APIView):
             refresh = serializer.validated_data['refresh']
             access = serializer.validated_data['access']
 
+            # request.session['access_token'] = access
+            # request.session['refresh_token'] = refresh
+
             response = JsonResponse({
                 'message': 'Login Success',
                 'user': user.username,
                 'is_voted': user.is_voted,
             }, status=HTTP_200_OK)
 
-            response.set_cookie('access_token', access)
-            response.set_cookie('refresh_token', refresh)
+            response.set_cookie('access_token', access, domain='http://localhost:3000', httponly=False, samesite=None)
+            response.set_cookie('refresh_token', refresh, domain='http://localhost:3000', httponly=False, samesite=None)
 
             return response
 
@@ -72,12 +78,15 @@ class LoginView(views.APIView):
 
 class LogoutView(views.APIView):
     def post(self, request):
+        # del request.session['access_token']
+        # del request.session['refresh_token']
+
         response = JsonResponse({
             'message': 'Logout Success',
         }, status=HTTP_200_OK)
 
-        response.delete_cookie('access_token')
-        response.delete_cookie('refresh_token')
+        response.delete_cookie('access_token', domain='http://localhost:3000')
+        response.delete_cookie('refresh_token', domain='http://localhost:3000')
 
         return response
 
@@ -88,7 +97,7 @@ class VotePermission(permissions.BasePermission):
             return True
         else:
             if request.COOKIES.get('access_token'):
-                access = request.COOKIES['access_token']
+                access = request.COOKIE['access_token']
                 payload = jwt.decode(access, env('DJANGO_SECRET_KEY'), algorithms=['HS256'])
                 user = get_object_or_404(User, pk=payload['user_id'])
                 request.user = user
