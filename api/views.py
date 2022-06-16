@@ -1,5 +1,5 @@
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404
 from .serializers import *
 from .models import *
 from rest_framework import viewsets, views, permissions, exceptions
@@ -38,8 +38,8 @@ class SignUpView(views.APIView):
                 'user': user.username,
             }, status=HTTP_201_CREATED)
 
-            response.set_cookie('access_token', access, domain='http://localhost:3000', httponly=True, samesite=None)
-            response.set_cookie('refresh_token', refresh, domain='http://localhost:3000', httponly=True, samesite=None)
+            response.set_cookie('access_token', access)
+            response.set_cookie('refresh_token', refresh)
 
             return response
 
@@ -67,8 +67,8 @@ class LoginView(views.APIView):
                 'is_voted': user.is_voted,
             }, status=HTTP_200_OK)
 
-            response.set_cookie('access_token', access, domain='http://localhost:3000', httponly=True, samesite=None)
-            response.set_cookie('refresh_token', refresh, domain='http://localhost:3000', httponly=True, samesite=None)
+            response.set_cookie('access_token', access)
+            response.set_cookie('refresh_token', refresh)
 
             return response
 
@@ -85,8 +85,8 @@ class LogoutView(views.APIView):
             'message': 'Logout Success',
         }, status=HTTP_200_OK)
 
-        response.delete_cookie('access_token', domain='http://localhost:3000')
-        response.delete_cookie('refresh_token', domain='http://localhost:3000')
+        response.delete_cookie('access_token')
+        response.delete_cookie('refresh_token')
 
         return response
 
