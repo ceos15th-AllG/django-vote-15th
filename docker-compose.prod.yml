@@ -2,7 +2,7 @@ version: '3'
 services:
 
   web:
-    container_name: web
+    container_name: vote_backend
     build:
       context: ./
       dockerfile: Dockerfile.prod
