@@ -69,9 +69,7 @@ class VoteListView(views.APIView):
 
     def post(self, request):
         user = get_object_or_404(User, pk=request.user.id)
-        candidate_id = request.query_params.get('candidate')
-        if (not candidate_id):
-            return JsonResponse({'message': 'Invalid Query Parameters'}, status=HTTP_400_BAD_REQUEST)
+        candidate_id = request.data['candidate']
         candidate = get_object_or_404(Candidate, pk=candidate_id)
 
         data = {'candidate': candidate.id, 'user': user.id}
