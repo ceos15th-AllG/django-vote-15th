@@ -89,7 +89,11 @@ class VoteListView(views.APIView):
         user.is_voted = True
         user.save()
         vote_serializer.save()
-        return JsonResponse({'message': 'Successfully Voted'}, status=HTTP_201_CREATED)
+
+        return JsonResponse({
+            'message': 'Successfully Voted',
+            'user': user.username,
+            'is_voted': user.is_voted}, status=HTTP_201_CREATED)
 
 
 class VoteDetailView(views.APIView):
