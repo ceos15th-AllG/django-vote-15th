@@ -5,12 +5,7 @@ from .models import *
 from rest_framework import viewsets, views, permissions, exceptions
 from rest_framework.status import *
 from rest_framework.response import Response
-import jwt
-import environ
 
-env = environ.Env(
-    DEBUG=(bool, False)
-)
 
 class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
@@ -30,15 +25,12 @@ class SignUpView(views.APIView):
             refresh = str(token)
             access = str(token.access_token)
 
-            response = JsonResponse({
+            return JsonResponse({
                 'message': 'Signup Success',
                 'user': user.username,
+                'access': access,
+                'refresh': refresh,
             }, status=HTTP_201_CREATED)
-
-            response.set_cookie('access_token', access)
-            response.set_cookie('refresh_token', refresh)
-
-            return response
 
         else:
             return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
@@ -55,50 +47,20 @@ class LoginView(views.APIView):
             refresh = serializer.validated_data['refresh']
             access = serializer.validated_data['access']
 
-            response = JsonResponse({
+            return JsonResponse({
                 'message': 'Login Success',
                 'user': user.username,
+                'access': access,
+                'refresh': refresh,
                 'is_voted': user.is_voted,
             }, status=HTTP_200_OK)
-
-            response.set_cookie('access_token', access)
-            response.set_cookie('refresh_token', refresh)
-
-            return response
 
         else:
             return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
 
 
-class LogoutView(views.APIView):
-    def post(self, request):
-        response = JsonResponse({
-            'message': 'Logout Success',
-        }, status=HTTP_200_OK)
-
-        response.delete_cookie('access_token')
-        response.delete_cookie('refresh_token')
-
-        return response
-
-
-class VotePermission(permissions.BasePermission):
-    def has_permission(self, request, view):
-        if request.method in permissions.SAFE_METHODS:
-            return True
-        else:
-            if request.COOKIES.get('access_token'):
-                access = request.COOKIES['access_token']
-                payload = jwt.decode(access, env('DJANGO_SECRET_KEY'), algorithms=['HS256'])
-                user = get_object_or_404(User, pk=payload['user_id'])
-                request.user = user
-                return True
-            else:
-                return False
-
-
 class VoteListView(views.APIView):
-    permission_classes = [VotePermission]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     def get(self, request):
         candidates = Candidate.objects.all().order_by('-count')  # 내림차순
@@ -108,8 +70,7 @@ class VoteListView(views.APIView):
 
     def post(self, request):
         user = get_object_or_404(User, pk=request.user.id)
-        candidate_id = request.data['candidate']
-        candidate = get_object_or_404(Candidate, pk=candidate_id)
+        candidate = get_object_or_404(Candidate, pk=request.query_params.get('candidate'))  # querystring
 
         data = {'candidate': candidate.id, 'user': user.id}
         vote_serializer = VoteSerializer(data=data)
@@ -138,19 +99,8 @@ class VoteDetailView(views.APIView):
         return Response(serializer.data, status=HTTP_200_OK)
 
 
-class CandidatePermission(permissions.BasePermission):
-    def has_permission(self, request, view):
-        if request.method in permissions.SAFE_METHODS:
-            return True
-        else:
-            if request.COOKIES.get('access_token'):
-                return True
-            else:
-                return False
-
-
 class CandidateView(views.APIView):
-    permission_classes = [CandidatePermission]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     def post(self, request):
         serializer = CandidateSerializer(data=request.data)
