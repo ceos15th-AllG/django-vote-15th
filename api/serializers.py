@@ -29,7 +29,6 @@ class SignUpSerializer(serializers.ModelSerializer):
         user = MyUser.objects.get(email=email)
 
         jwt_token = TokenObtainPairSerializer.get_token(user)
-        refresh_token = str(jwt_token)
         access_token = str(jwt_token.access_token)
 
         return {
@@ -38,7 +37,6 @@ class SignUpSerializer(serializers.ModelSerializer):
             'part': user.part,
             'token': {
                 'access_token': access_token,
-                'refresh_token': refresh_token
             }
         }
 
@@ -59,7 +57,6 @@ class SignInSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('아이디 또는 비밀번호가 틀렸습니다.', code=400)
         else:
             jwt_token = TokenObtainPairSerializer.get_token(user)
-            refresh_token = str(jwt_token)
             access_token = str(jwt_token.access_token)
 
             return {
@@ -68,7 +65,6 @@ class SignInSerializer(serializers.ModelSerializer):
                 'part': user.part,
                 'token': {
                     'access_token': access_token,
-                    'refresh_token': refresh_token
                 }
             }
 
