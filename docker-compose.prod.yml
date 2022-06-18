@@ -26,10 +26,19 @@ services:
     volumes:
       - static:/home/app/web/static
       - media:/home/app/web/media
+      - ../volumes/certbot/conf:/etc/init_letsencrypt.sh
+      - ../volumes/certbot/www:/var/www/certbot
     ports:
       - "80:80"
+      - "443:443"
     depends_on:
       - web
+
+  certbot:
+    image: certbot/certbot
+    volumes:
+      - ../volumes/certbot/conf:/etc/init_letsencrypt.sh
+      - ../volumes/certbot/www:/var/www/certbot
 
 volumes:
   static:
