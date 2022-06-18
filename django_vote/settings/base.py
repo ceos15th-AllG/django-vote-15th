@@ -45,7 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'api',
-
+    'corsheaders',
 ]
 
 AUTH_USER_MODEL = 'api.MyUser'
@@ -57,7 +57,16 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
+
+# CORS 관련 추가
+CORS_ORIGIN_WHITELIST = ['http://localhost:8000',
+                         'http://52.78.135.107:80',
+                         'https://52.78.135.107:443',
+                         'http://ec2-52-78-135-107.ap-northeast-2.compute.amazonaws.com:80',
+                         'https://ec2-52-78-135-107.ap-northeast-2.compute.amazonaws.com:443',]
+CORS_ALLOW_CREDENTIALS = True
 
 ROOT_URLCONF = 'django_vote.urls'
 

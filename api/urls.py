@@ -4,10 +4,10 @@ from .views import *
 
 router = routers.DefaultRouter()
 router.register(r'candidates', CandidateViewSet)
-router.register(r'votes', VoteViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
     path('users/signups/', SignUpView.as_view()),
     path('users/logins/', SignInView.as_view()),
+    path('votes/<int:pk>/', VoteView.as_view()),
 ]

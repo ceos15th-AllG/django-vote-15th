@@ -60,6 +60,7 @@ class SignInSerializer(serializers.ModelSerializer):
             access_token = str(jwt_token.access_token)
 
             return {
+                'id': user.id,
                 'name': user.name,
                 'email': user.email,
                 'part': user.part,
