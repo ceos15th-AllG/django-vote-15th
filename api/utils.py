@@ -15,7 +15,7 @@ def custom_exception_handler(exc, context):
         elif response.status_code == 403:
             m = "해당 권한이 없습니다."
         response.data = {
-            'status_code': response.status_code,
+            'status': response.status_code,
             'message': m,
             'detail': response.data
         }
