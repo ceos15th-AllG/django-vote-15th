@@ -73,6 +73,16 @@ class LoginView(APIView):
             return Response({'message': 'Login failed!'}, status=status.HTTP_400_BAD_REQUEST)
 
 
+class LogoutView(APIView):
+    def post(self, request):
+        res = JsonResponse({
+            "message": "Logged out"
+        })
+        res.delete_cookie('access')
+        res.delete_cookie('refresh')
+        return res
+
+
 class Vote(APIView):
     def get(self, request):  # vote 현황 가져오기
         candidates = Candidate.objects.all().order_by('-vote_cnt')
