@@ -2,15 +2,14 @@ from django.core import exceptions
 from django.http import JsonResponse
 from django.shortcuts import render
 
-# Create your views here.
 from rest_framework import status
 from rest_framework.response import Response
-from rest_framework.status import HTTP_409_CONFLICT, HTTP_201_CREATED
+from rest_framework.status import *
 from rest_framework.views import APIView
+from rest_framework.exceptions import AuthenticationFailed
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from api.serializers import *
-
 
 class Signup(APIView):
     def post(self, request):
@@ -25,6 +24,7 @@ class Signup(APIView):
                 {
                     "username": voter.username,
                     "email": voter.email,
+                    "voter_state": voter.voter_state,
                     "message": "success!",
                     "token": {
                         "access": access_token,
@@ -35,6 +35,42 @@ class Signup(APIView):
             )
             return res
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class LoginView(APIView):
+    def post(self, request):
+        email = request.data['email']
+        password = request.data['password']
+
+        voter = Voter.objects.filter(email=email).first()
+
+        if voter is not None:
+            if password == voter.password:
+                token = TokenObtainPairSerializer.get_token(voter)
+                refresh_token = str(token)
+                access_token = str(token.access_token)
+                res = Response(
+                    {
+                        "username": voter.username,
+                        "message": "Login success!",
+                        "token": {
+                            "access": access_token,
+                            "refresh": refresh_token,
+                        },
+                    },
+                    status=status.HTTP_200_OK
+                )
+                res.set_cookie("access", access_token, httponly=True)
+                res.set_cookie("refresh", refresh_token, httponly=True)
+                return res
+
+            else:
+                raise AuthenticationFailed('Wrong password!')
+
+        elif voter is None:
+                raise AuthenticationFailed('User not found!')
+        else:
+            return Response({'message': 'Login failed!'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class Vote(APIView):
