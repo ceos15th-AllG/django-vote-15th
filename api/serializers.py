@@ -2,6 +2,10 @@ from rest_framework import serializers
 
 from api.models import *
 
+class VoterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Voter
+        fields = '__all__'
 
 class SignupSerializer(serializers.ModelSerializer):
     class Meta:
@@ -16,7 +20,6 @@ class SignupSerializer(serializers.ModelSerializer):
         )
         voter.save()
         return voter
-
 
 class CandidateSerializer(serializers.ModelSerializer):
     class Meta:
