@@ -60,6 +60,7 @@ class LoginView(APIView):
                     },
                     status=status.HTTP_200_OK
                 )
+                res.set_cookie("username", voter.username, httponly=True)
                 res.set_cookie("access", access_token, httponly=True)
                 res.set_cookie("refresh", refresh_token, httponly=True)
                 return res
@@ -78,6 +79,7 @@ class LogoutView(APIView):
         res = JsonResponse({
             "message": "Logged out"
         })
+        res.delete_cookie('username')
         res.delete_cookie('access')
         res.delete_cookie('refresh')
         return res
@@ -93,18 +95,23 @@ class Vote(APIView):
         candidate_name = self.request.data['candidate']
         candidate = Candidate.objects.get(candidate_name=candidate_name)
 
-        voter_name = self.request.data['voter']
+        voter_name = request.COOKIES.get('username')
         voter = Voter.objects.get(username=voter_name)
 
-        if not voter.voter_state:  # 아직 투표하지 않은 투표자라면
-            candidate.vote_cnt = candidate.vote_cnt + 1
-            candidate.save()
-            voter.voter_state = True
-            voter.save()
-            return JsonResponse({
-                'message': 'success!',
-                'voter_name': voter_name,
-                'candidate_name': candidate_name,
-                'vote_cnt': candidate.vote_cnt}, status=HTTP_201_CREATED)
-        else:  # 이미 투표를 했다면 투표권 X
-            return JsonResponse({'message': '투표는 1회만 가능합니다.'}, status=HTTP_409_CONFLICT)
+        token = request.COOKIES.get('access')
+
+        if not token:
+            raise AuthenticationFailed('투표에는 로그인이 필요합니다.')
+        else:
+            if not voter.voter_state:  # 아직 투표하지 않은 투표자라면
+                candidate.vote_cnt = candidate.vote_cnt + 1
+                candidate.save()
+                voter.voter_state = True
+                voter.save()
+                return JsonResponse({
+                    'message': 'success!',
+                    'voter_name': voter_name,
+                    'candidate_name': candidate_name,
+                    'vote_cnt': candidate.vote_cnt}, status=HTTP_201_CREATED)
+            else:  # 이미 투표를 했다면 투표권 X
+                return JsonResponse({'message': '투표는 1회만 가능합니다.'}, status=HTTP_409_CONFLICT)
