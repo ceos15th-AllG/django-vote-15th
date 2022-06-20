@@ -44,11 +44,25 @@ class VotePermission(permissions.BasePermission):
 
 class VoteView(APIView):
     permission_classes = [VotePermission]
+    #
+    # def check_token(self, request):
+    #     try:
+    #         header_token = request.headers['Authorization']
+    #         token = header_token.split()
+    #         payload = jwt.decode(token[1], settings.SECRET_KEY, algorithms=['HS256'])
+    #     except token[0] != 'bearer':
+    #         raise exceptions.ValidationError(detail='jwt 토큰을 확인해주세요')
+    #     except jwt.ExpiredSignatureError:
+    #         Response(status=403)
+    #
 
-    def post(self, request, pk):
-        candidate_id = pk
+    def post(self, request):
+        candidate_id = request.data['candidate']
         token_user = request.user
-        token_user_id = MyUser.objects.get(name=token_user).id
+        token_user_id = MyUser.objects.get(email=token_user).id
+        # self.check_token(request)
+        if token_user_id is None:
+            raise exceptions.ValidationError(detail='유저 정보를 확인해 주세요.')
         check_vote = Vote.objects.filter(candidate_id=candidate_id, user_id=token_user_id)
 
         if len(check_vote) != 0:
