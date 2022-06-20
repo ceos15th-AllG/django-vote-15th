@@ -44,23 +44,12 @@ class VotePermission(permissions.BasePermission):
 
 class VoteView(APIView):
     permission_classes = [VotePermission]
-    #
-    # def check_token(self, request):
-    #     try:
-    #         header_token = request.headers['Authorization']
-    #         token = header_token.split()
-    #         payload = jwt.decode(token[1], settings.SECRET_KEY, algorithms=['HS256'])
-    #     except token[0] != 'bearer':
-    #         raise exceptions.ValidationError(detail='jwt 토큰을 확인해주세요')
-    #     except jwt.ExpiredSignatureError:
-    #         Response(status=403)
-    #
+
 
     def post(self, request):
         candidate_id = request.data['candidate']
         token_user = request.user
         token_user_id = MyUser.objects.get(email=token_user).id
-        # self.check_token(request)
         if token_user_id is None:
             raise exceptions.ValidationError(detail='유저 정보를 확인해 주세요.')
         check_vote = Vote.objects.filter(candidate_id=candidate_id, user_id=token_user_id)
@@ -106,3 +95,30 @@ class SignInView(APIView):
 
         res_data = SignInSerializer.user_login(None, data)
         return Response(generate_success_form(200, '로그인 성공', res_data), status=200)
+
+
+class RefreshTokenView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        try:
+            header_token = request.headers['Refresh-Authorization']
+            token = header_token.split()
+            payload = jwt.decode(header_token, settings.SECRET_KEY, algorithms=['HS256'])
+            user = MyUser.objects.get(id=payload['user_id'])
+            jwt_token = TokenObtainPairSerializer.get_token(user)
+            access_token = str(jwt_token.access_token)
+            return Response(generate_success_form(200, '토큰 재발급 성공', {
+                'access_token': access_token
+            }))
+        except jwt.ExpiredSignatureError:
+            raise exceptions.AuthenticationFailed(detail='리프레쉬 토큰 만료')
+
+#
+# class LogoutView(APIView):
+#     permission_classes = [VotePermission]
+#
+#     def post(self, request):
+#         user = request.user
+#         MyUser.objects.get(id=user.id).refresh_token.delete()
+#

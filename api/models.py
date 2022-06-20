@@ -40,6 +40,7 @@ class MyUser(AbstractBaseUser):
     email = models.CharField(max_length=30, unique=True)
     password = models.TextField()
     part = models.CharField(max_length=3)
+    refresh_token = models.TextField(blank=True)
 
     objects = UserManager()
 
