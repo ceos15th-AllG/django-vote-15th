@@ -28,7 +28,7 @@ class CandidateView(APIView):
         part = request.query_params.get('part', None)
         if part != 'BE' and part != 'FE':
             raise exceptions.ValidationError(detail='검색하고자 하는 파트를 명확하게 입력해주세요')
-        candidates = Candidate.objects.filter(part=part)
+        candidates = Candidate.objects.filter(part=part).order_by('-vote_count', 'user_name')
         serializer = CandidateSerializer(candidates, many=True)
 
         return Response(generate_success_form(200, '검색 성공', serializer.data), status=200)
