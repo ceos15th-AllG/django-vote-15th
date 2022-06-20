@@ -92,7 +92,7 @@ class SignInView(APIView):
 
     def post(self, request):
         data = JSONParser().parse(self.request)
-
+        print(data)
         res_data = SignInSerializer.user_login(None, data)
         return Response(generate_success_form(200, '로그인 성공', res_data), status=200)
 

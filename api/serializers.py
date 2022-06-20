@@ -52,28 +52,30 @@ class SignInSerializer(serializers.ModelSerializer):
         fields = ['name', 'email', 'password', 'token']
 
     def user_login(self, data):
-        email = data.get("email", None)
-        password = data.get("password", None)
-        user = MyUser.objects.get(email=email)
-
-        if user is None or check_password(password, user.password) is False:
-            raise serializers.ValidationError('아이디 또는 비밀번호가 틀렸습니다.', code=400)
-        else:
-            jwt_token = TokenObtainPairSerializer.get_token(user)
-            refresh_token = str(jwt_token)
-            access_token = str(jwt_token.access_token)
-            user.refresh_token = refresh_token
-            user.save()
-            return {
-                'id': user.id,
-                'name': user.name,
-                'email': user.email,
-                'part': user.part,
-                'token': {
-                    'access_token': access_token,
-                    'refresh_token': refresh_token
+        try:
+            email = data.get("email", None)
+            password = data.get("password", None)
+            user = MyUser.objects.get(email=email)
+            if check_password(password, user.password) is False:
+                raise serializers.ValidationError('아이디 또는 비밀번호가 틀렸습니다.', code=400)
+            else:
+                jwt_token = TokenObtainPairSerializer.get_token(user)
+                refresh_token = str(jwt_token)
+                access_token = str(jwt_token.access_token)
+                user.refresh_token = refresh_token
+                user.save()
+                return {
+                    'id': user.id,
+                    'name': user.name,
+                    'email': user.email,
+                    'part': user.part,
+                    'token': {
+                        'access_token': access_token,
+                        'refresh_token': refresh_token
+                    }
                 }
-            }
+        except MyUser.DoesNotExist:
+            raise serializers.ValidationError('아이디 또는 비밀번호가 틀렸습니다.', code=400)
 
 
 class VoteSerializer(serializers.ModelSerializer):
