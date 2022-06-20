@@ -61,8 +61,9 @@ MIDDLEWARE = [
 ]
 
 # CORS 관련 추가
-CORS_ALLOW_CREDENTIALS = True
 CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_CREDENTIALS = True
+
 
 ROOT_URLCONF = 'django_vote.urls'
 
