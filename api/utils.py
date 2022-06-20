@@ -13,7 +13,7 @@ def custom_exception_handler(exc, context):
         elif response.status_code == 404:
             m = "데이터를 찾을 수 없습니다."
         elif response.status_code == 403:
-            m = "해당 권한이 없습니다."
+            m = "토큰이 만료되었습니다."
         response.data = {
             'status': response.status_code,
             'message': m,

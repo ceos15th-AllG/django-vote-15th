@@ -47,7 +47,7 @@ class MyUser(AbstractBaseUser):
     REQUIRED_FIELDS = ['name', 'password']
 
     def __str__(self):
-        return self.name
+        return self.email
 
 
 class Candidate(BaseModel):
