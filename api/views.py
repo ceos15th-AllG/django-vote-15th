@@ -6,25 +6,27 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.status import *
 from rest_framework.views import APIView
-from rest_framework.exceptions import AuthenticationFailed
+from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
-from api.serializers import *
+from .serializers import *
+from .models import *
 
 class Signup(APIView):
     def post(self, request):
         serializer = SignupSerializer(data=request.data)
         if serializer.is_valid():
-            voter = serializer.save()
+            user = serializer.save()
             # jwt token
-            token = TokenObtainPairSerializer.get_token(voter)
+            token = TokenObtainPairSerializer.get_token(user)
             refresh_token = str(token)
             access_token = str(token.access_token)
             res = Response(
                 {
-                    "username": voter.username,
-                    "email": voter.email,
-                    "voter_state": voter.voter_state,
+                    "username": user.username,
+                    "email": user.email,
+                    "voted_fe": user.voted_fe,
+                    "voted_be": user.voted_be,
                     "message": "success!",
                     "token": {
                         "access": access_token,
@@ -39,19 +41,19 @@ class Signup(APIView):
 
 class LoginView(APIView):
     def post(self, request):
-        email = request.data['email']
+        username = request.data['username']
         password = request.data['password']
 
-        voter = Voter.objects.filter(email=email).first()
+        user = User.objects.filter(username=username).first()
 
-        if voter is not None:
-            if password == voter.password:
-                token = TokenObtainPairSerializer.get_token(voter)
+        if user is not None:
+            if password == user.password:
+                token = TokenObtainPairSerializer.get_token(user)
                 refresh_token = str(token)
                 access_token = str(token.access_token)
                 res = Response(
                     {
-                        "username": voter.username,
+                        "username": user.username,
                         "message": "Login success!",
                         "token": {
                             "access": access_token,
@@ -60,7 +62,7 @@ class LoginView(APIView):
                     },
                     status=status.HTTP_200_OK
                 )
-                res.set_cookie("username", voter.username, httponly=True)
+                res.set_cookie("username", user.username, httponly=True)
                 res.set_cookie("access", access_token, httponly=True)
                 res.set_cookie("refresh", refresh_token, httponly=True)
                 return res
@@ -68,7 +70,7 @@ class LoginView(APIView):
             else:
                 return Response({'message': 'Wrong password!'}, status=status.HTTP_401_UNAUTHORIZED)
 
-        elif voter is None:
+        elif user is None:
                 return Response({'message': 'User not found!'}, status=status.HTTP_401_UNAUTHORIZED)
         else:
             return Response({'message': 'Login failed!'}, status=status.HTTP_400_BAD_REQUEST)
@@ -95,22 +97,22 @@ class Vote(APIView):
         candidate_name = self.request.data['candidate']
         candidate = Candidate.objects.get(candidate_name=candidate_name)
 
-        voter_name = request.COOKIES.get('username')
+        user_name = request.COOKIES.get('username')
         try:
-            voter = Voter.objects.get(username=voter_name)
-        except Voter.DoesNotExist:
-            return Response({'message': '로그인하지 않은 사용자입니다!'}, status=status.HTTP_400_BAD_REQUEST)
+            user = User.objects.get(username=user_name)
+        except User.DoesNotExist:
+            return Response({'message': '투표는 로그인이 필요합니다!'}, status=status.HTTP_400_BAD_REQUEST)
 
         # token = request.COOKIES.get('access')
 
-        if not voter.voter_state:  # 아직 투표하지 않은 투표자라면
+        if not user.voted_be:  # 아직 투표하지 않은 투표자라면
             candidate.vote_cnt = candidate.vote_cnt + 1
             candidate.save()
-            voter.voter_state = True
-            voter.save()
+            user.voted_be = True
+            user.save()
             return JsonResponse({
                 'message': 'success!',
-                'voter_name': voter_name,
+                'user_name': user_name,
                 'candidate_name': candidate_name,
                 'vote_cnt': candidate.vote_cnt}, status=HTTP_201_CREATED)
         else:  # 이미 투표를 했다면 투표권 X

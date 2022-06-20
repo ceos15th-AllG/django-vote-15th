@@ -1,26 +1,29 @@
 from rest_framework import serializers
 
-from api.models import *
+from .models import *
 
-class VoterSerializer(serializers.ModelSerializer):
+# 사용자 정보 추출
+class UserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Voter
+        model = User
         fields = '__all__'
 
+# 회원가입
 class SignupSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Voter
-        fields = ['username', 'id', 'password', 'email']
+        model = User
+        fields = ['username', 'password', 'email']
 
     def create(self, validated_data):
-        voter = Voter.objects.create(
+        user = User.objects.create(
             username=validated_data['username'], # 아이디
             password=validated_data['password'], # 비밀번호
             email=validated_data['email'], # 메일주소
         )
-        voter.save()
-        return voter
+        user.save()
+        return user
 
+# 후보자 정보 추출
 class CandidateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Candidate
