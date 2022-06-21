@@ -21,14 +21,14 @@ services:
     container_name: web
     build: .
     command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
-    environment:
+    environment:s
       MYSQL_ROOT_PASSWORD: mysql
       DATABASE_NAME: mysql
       DATABASE_USER: 'root'
       DATABASE_PASSWORD: mysql
       DATABASE_PORT: 3306
       DATABASE_HOST: db
-      DJANGO_SETTINGS_MODULE: django_rest_framework_15th.settings.dev
+      DJANGO_SETTINGS_MODULE: django_vote_15th.settings.dev
     restart: always
     ports:
       - "8000:8000"

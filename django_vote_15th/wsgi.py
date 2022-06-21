@@ -1,5 +1,5 @@
 """
-WSGI config for django_rest_framework_15th project.
+WSGI config for django_vote_15th project.
 
 It exposes the WSGI callable as a module-level variable named ``application``.
 
@@ -11,6 +11,6 @@ import os
 
 from django.core.wsgi import get_wsgi_application
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'django_rest_framework_15th.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'django_vote_15th.settings')
 
 application = get_wsgi_application()
