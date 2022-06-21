@@ -23,6 +23,7 @@ def generate_success_form(code, message, detail):
 
 
 class CandidateView(APIView):
+    permission_classes = [AllowAny]
 
     def get(self, request):
         part = request.query_params.get('part', None)
