@@ -49,9 +49,14 @@ class VoteView(APIView):
     def post(self, request):
         candidate_id = request.data['candidate']
         token_user = request.user
-        token_user_id = MyUser.objects.get(email=token_user).id
-        if token_user_id is None:
+        bearer = request.headers['Authorization']
+        token = bearer.split()
+        print(token[1])
+        token_user_id = MyUser.objects.get(email=token_user)
+        if token_user_id.id is None:
             raise exceptions.ValidationError(detail='유저 정보를 확인해 주세요.')
+        elif token_user_id.denied_access_token == token[1]:
+            raise exceptions.AuthenticationFailed(detail='토큰이 만료되었습니다.')
         check_vote = Vote.objects.filter(candidate_id=candidate_id, user_id=token_user_id)
 
         if len(check_vote) != 0:
@@ -103,22 +108,38 @@ class RefreshTokenView(APIView):
     def post(self, request):
         try:
             header_token = request.headers['Refresh-Authorization']
-            token = header_token.split()
+            print(header_token)
+            user = MyUser.objects.get(refresh_token=header_token)
             payload = jwt.decode(header_token, settings.SECRET_KEY, algorithms=['HS256'])
-            user = MyUser.objects.get(id=payload['user_id'])
-            jwt_token = TokenObtainPairSerializer.get_token(user)
+            get_user = MyUser.objects.get(id=payload['user_id'])
+            jwt_token = TokenObtainPairSerializer.get_token(get_user)
             access_token = str(jwt_token.access_token)
             return Response(generate_success_form(200, '토큰 재발급 성공', {
                 'access_token': access_token
             }))
+        except MyUser.DoesNotExist:
+            raise exceptions.NotAuthenticated(detail='토큰 재발급 권한이 없습니다.')
         except jwt.ExpiredSignatureError:
+            user.refresh_token = ''
+            user.save()
             raise exceptions.AuthenticationFailed(detail='리프레쉬 토큰 만료')
 
-#
-# class LogoutView(APIView):
-#     permission_classes = [VotePermission]
-#
-#     def post(self, request):
-#         user = request.user
-#         MyUser.objects.get(id=user.id).refresh_token.delete()
-#
+
+class LogoutView(APIView):
+    permission_classes = [VotePermission]
+
+    def post(self, request):
+        try:
+            user = request.user
+            bearer = request.headers['Authorization']
+            token = bearer.split()
+            if user.denied_access_token == token[1]:
+                raise exceptions.AuthenticationFailed(detail='이미 로그아웃된 계정입니다.')
+            user = MyUser.objects.get(id=user.id)
+            user.refresh_token = ''
+            user.denied_access_token = token[1]
+            user.save()
+            return Response(generate_success_form(200, '로그아웃 성공', {}), status=200)
+        except MyUser.DoesNotExist:
+            raise exceptions.ValidationError(detail='토큰 정보를 확인해주세요')
+

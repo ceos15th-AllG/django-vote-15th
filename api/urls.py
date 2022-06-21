@@ -10,5 +10,6 @@ urlpatterns = [
     path('users/logins/', SignInView.as_view()),
     path('votes/', VoteView.as_view()),
     path('candidates/', CandidateView.as_view()),
-    path('refreshes/', RefreshTokenView.as_view())
+    path('refreshes/', RefreshTokenView.as_view()),
+    path('users/logouts/', LogoutView.as_view()),
 ]

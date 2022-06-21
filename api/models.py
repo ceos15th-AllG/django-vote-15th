@@ -41,6 +41,7 @@ class MyUser(AbstractBaseUser):
     password = models.TextField()
     part = models.CharField(max_length=3)
     refresh_token = models.TextField(blank=True)
+    denied_access_token = models.TextField(blank=True)
 
     objects = UserManager()
 

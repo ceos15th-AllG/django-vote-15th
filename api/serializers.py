@@ -63,6 +63,7 @@ class SignInSerializer(serializers.ModelSerializer):
                 refresh_token = str(jwt_token)
                 access_token = str(jwt_token.access_token)
                 user.refresh_token = refresh_token
+                user.denied_access_token = ''
                 user.save()
                 return {
                     'id': user.id,
