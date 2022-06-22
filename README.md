@@ -15,4 +15,4 @@
 https://yourzinc.notion.site/django-vote-15th-API-74b44c1773b44e1d9dd7c043e514a0b8
 
 ---
-### Docker와 Github Action을 이용한 자동 배포 3
+### Docker와 Github Action을 이용한 자동 배포 4
