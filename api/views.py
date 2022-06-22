@@ -54,5 +54,5 @@ class LoginAPIView(APIView):
 
 
 class TestAPIView(APIView):
-    def get(self):
+    def get(self, request):
         return Response({"msg": "hello"})
