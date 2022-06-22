@@ -55,7 +55,7 @@ class VoteView(APIView):
             raise exceptions.ValidationError(detail='유저 정보를 확인해 주세요.')
         elif token_user_id.denied_access_token == token[1]:
             raise exceptions.AuthenticationFailed(detail='토큰이 만료되었습니다.')
-        check_vote = Vote.objects.filter(candidate_id=candidate_id, user_id=token_user_id)
+        check_vote = Vote.objects.filter(candidate_id=candidate_id, user_id=token_user_id.id)
 
         if len(check_vote) != 0:
             raise exceptions.ValidationError(detail='해당 유저는 해당 후보에 이미 투표한 상태입니다.')
@@ -65,12 +65,12 @@ class VoteView(APIView):
             candidate.save()
             vote_serializer = VoteSerializer(data={
                 'candidate': candidate_id,
-                'user': token_user_id
+                'user': token_user_id.id
             })
             if vote_serializer.is_valid(raise_exception=True):
                 vote_serializer.save()
                 res_data = {
-                    'user': token_user_id,
+                    'user': token_user_id.id,
                     'candidate': candidate_id
                 }
                 return Response(generate_success_form(201, '투표 성공', res_data), status=201)
