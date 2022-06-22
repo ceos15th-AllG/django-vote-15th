@@ -46,13 +46,18 @@ class LoginView(views.APIView):
             refresh = serializer.validated_data['refresh']
             access = serializer.validated_data['access']
 
-            return JsonResponse({
+            response = JsonResponse({
                 'message': 'Login Success',
                 'user': user.username,
                 'access': access,
                 'refresh': refresh,
                 'is_voted': user.is_voted,
             }, status=HTTP_200_OK)
+
+            response.set_cookie('access_token', access)
+            response.set_cookie('refresh_token', refresh)
+
+            return response
 
         else:
             return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
