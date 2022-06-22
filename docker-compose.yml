@@ -21,7 +21,7 @@ services:
     container_name: web
     build: .
     command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
-    environment:
+    environment:s
       MYSQL_ROOT_PASSWORD: mysql
       DATABASE_NAME: mysql
       DATABASE_USER: 'root'
