@@ -1,7 +1,5 @@
 import environ
 import jwt
-from django_filters.rest_framework import FilterSet, filters
-from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, mixins, exceptions, permissions
 from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
@@ -45,7 +43,6 @@ class VotePermission(permissions.BasePermission):
 
 class VoteView(APIView):
     permission_classes = [VotePermission]
-
 
     def post(self, request):
         candidate_id = request.data['candidate']
