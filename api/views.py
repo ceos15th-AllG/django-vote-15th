@@ -25,12 +25,18 @@ class SignUpView(views.APIView):
             refresh = str(token)
             access = str(token.access_token)
 
-            return JsonResponse({
+            response = JsonResponse({
                 'message': 'Signup Success',
                 'user': user.username,
                 'access': access,
                 'refresh': refresh,
             }, status=HTTP_201_CREATED)
+
+            response.set_cookie('access_token', access, httponly=True)
+            response.set_cookie('refresh_token', refresh, httponly=True)
+
+            return response
+
         else:
             return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
 
@@ -54,8 +60,8 @@ class LoginView(views.APIView):
                 'is_voted': user.is_voted,
             }, status=HTTP_200_OK)
 
-            response.set_cookie('access_token', access)
-            response.set_cookie('refresh_token', refresh)
+            response.set_cookie('access_token', access, httponly=True)
+            response.set_cookie('refresh_token', refresh, httponly=True)
 
             return response
 
@@ -91,7 +97,7 @@ class VoteListView(views.APIView):
 
         candidate.count += 1
         candidate.save()
-        #user.is_voted = True
+        # user.is_voted = True
         user.save()
         vote_serializer.save()
 
