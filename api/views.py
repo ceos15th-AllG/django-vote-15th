@@ -8,6 +8,7 @@ from rest_framework import status, generics
 from rest_framework.response import Response
 from rest_framework.status import *
 from rest_framework.views import APIView
+from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from .serializers import *
@@ -87,7 +88,8 @@ class LoginView(APIView):
 
 class LogoutView(APIView):
     def post(self, request):
-        #Working....
+        token = RefreshToken(request.data.get('refresh'))
+        token.blacklist()
         return Response({"message": "로그아웃 완료"})
 
 class UserView(generics.GenericAPIView):
