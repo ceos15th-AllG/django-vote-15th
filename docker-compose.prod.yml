@@ -25,7 +25,7 @@ services:
     build: ./config/nginx
     volumes:
       - type: bind
-        source: /home/app/web/certbot/conf/archive
+        source: /home/app/web/certbot/conf/live
         target: /etc/nginx/ssl
       - /home/app/web/certbot/data:/var/www/certbot
       - static:/home/app/web/static
