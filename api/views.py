@@ -16,6 +16,7 @@ from .models import *
 
 import os
 import environ
+import tokenize
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 env = environ.Env(
@@ -88,9 +89,13 @@ class LoginView(APIView):
 
 class LogoutView(APIView):
     def post(self, request):
-        token = RefreshToken(request.data.get('refresh'))
-        token.blacklist()
-        return Response({"message": "로그아웃 완료"})
+        try:
+            refresh = RefreshToken(request.data.get('refresh'))
+            refresh.blacklist()
+            return Response({"message": "로그아웃 완료"})
+        except Exception:
+            return Response({"message": "로그아웃이 불가한 상태입니다."})
+            
 
 class UserView(generics.GenericAPIView):
     def get(self, request):
