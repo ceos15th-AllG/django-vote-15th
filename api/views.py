@@ -105,19 +105,26 @@ class RefreshTokenView(APIView):
 
     def post(self, request):
         try:
-            header_token = request.headers['Refresh-Authorization']
-            print(header_token)
+            header_token = request.COOKIES.get('refresh_token')
+            if header_token is '':
+                raise exceptions.AuthenticationFailed('쿠키 값을 확인해주세요')
             user = MyUser.objects.get(refresh_token=header_token)
             payload = jwt.decode(header_token, settings.SECRET_KEY, algorithms=['HS256'])
             get_user = MyUser.objects.get(id=payload['user_id'])
             jwt_token = TokenObtainPairSerializer.get_token(get_user)
             access_token = str(jwt_token.access_token)
             return Response(generate_success_form(200, '토큰 재발급 성공', {
-                'access_token': access_token
+                'id': user.id,
+                'name': user.name,
+                'email': user.email,
+                'part': user.part,
+                'token': {
+                    'access_token': access_token,
+                }
             }))
         except MyUser.DoesNotExist:
             raise exceptions.NotAuthenticated(detail='토큰 재발급 권한이 없습니다.')
-        except jwt.ExpiredSignatureError:
+        except jwt.exceptions.ExpiredSignatureError:
             user.refresh_token = ''
             user.save()
             raise exceptions.AuthenticationFailed(detail='리프레쉬 토큰 만료')
