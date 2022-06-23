@@ -26,7 +26,8 @@ environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 SECRET_KEY = env('DJANGO_SECRET_KEY')
 
-class Signup(APIView):
+
+class SignupView(APIView):
     def post(self, request):
         serializer = SignupSerializer(data=request.data)
         if serializer.is_valid():
@@ -88,7 +89,6 @@ class LoginView(APIView):
         else:
             return Response({'message': 'Login failed!'}, status=status.HTTP_400_BAD_REQUEST)
 
-
 class LogoutView(APIView):
     def post(self, request):
         res = JsonResponse({
@@ -111,13 +111,13 @@ class UserView(generics.GenericAPIView):
         if user.is_authenticated:
             return Response({'username': user.username, 'message': '로그인 상태'}, status=status.HTTP_200_OK)
 
-
-class Vote(APIView):
-    def get(self, request):  # vote 현황 가져오기
+class CandidateView(APIView):
+    def get(self, request):  # 후보자 현황 가져오기
         candidates = Candidate.objects.all().order_by('-vote_cnt')
         serializer = CandidateSerializer(candidates, many=True)
         return Response(serializer.data)
 
+class VoteView(APIView):
     def post(self, request):
         candidate_name = self.request.data['candidate']
         candidate = Candidate.objects.get(candidate_name=candidate_name)
@@ -127,8 +127,6 @@ class Vote(APIView):
             user = User.objects.get(username=user_name)
         except User.DoesNotExist:
             return Response({'message': '투표는 로그인이 필요합니다!'}, status=status.HTTP_400_BAD_REQUEST)
-
-        # token = request.COOKIES.get('access')
 
         if not user.voted_be:  # 아직 투표하지 않은 투표자라면
             candidate.vote_cnt = candidate.vote_cnt + 1
