@@ -1,8 +1,10 @@
+import jwt
+from django.contrib.auth import authenticate
 from django.core import exceptions
 from django.http import JsonResponse
 from django.shortcuts import render
 
-from rest_framework import status
+from rest_framework import status, generics
 from rest_framework.response import Response
 from rest_framework.status import *
 from rest_framework.views import APIView
@@ -11,6 +13,18 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from .serializers import *
 from .models import *
+
+import os
+import environ
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+env = environ.Env(
+    DEBUG=(bool, False)
+)
+
+environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
+
+SECRET_KEY = env('DJANGO_SECRET_KEY')
 
 class Signup(APIView):
     def post(self, request):
@@ -37,7 +51,6 @@ class Signup(APIView):
             )
             return res
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 class LoginView(APIView):
     def post(self, request):
@@ -85,6 +98,18 @@ class LogoutView(APIView):
         res.delete_cookie('access')
         res.delete_cookie('refresh')
         return res
+
+class UserView(generics.GenericAPIView):
+    def get(self, request):
+        try:
+            header_authorization = request.headers.get('Authorization', None)
+            access = jwt.decode(header_authorization, SECRET_KEY, algorithms=['HS256'])
+            user = User.objects.get(id=access["user_id"])
+        except jwt.exceptions.ExpiredSignatureError:
+            return Response({'message': '미 로그인 상태'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        if user.is_authenticated:
+            return Response({'username': user.username, 'message': '로그인 상태'}, status=status.HTTP_200_OK)
 
 
 class Vote(APIView):
