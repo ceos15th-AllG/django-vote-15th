@@ -8,7 +8,7 @@ from rest_framework import status, generics
 from rest_framework.response import Response
 from rest_framework.status import *
 from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
+from rest_framework.permissions import *
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from .serializers import *
@@ -42,7 +42,7 @@ class SignupView(APIView):
                     "email": user.email,
                     "voted_fe": user.voted_fe,
                     "voted_be": user.voted_be,
-                    "message": "success!",
+                    "message": "회원가입에 성공했습니다!",
                     "token": {
                         "access": access_token,
                         "refresh": refresh_token,
@@ -68,7 +68,7 @@ class LoginView(APIView):
                 res = Response(
                     {
                         "username": user.username,
-                        "message": "Login success!",
+                        "message": "로그인에 성공했습니다!",
                         "token": {
                             "access": access_token,
                             "refresh": refresh_token,
@@ -82,17 +82,17 @@ class LoginView(APIView):
                 return res
 
             else:
-                return Response({'message': 'Wrong password!'}, status=status.HTTP_401_UNAUTHORIZED)
+                return Response({'message': '비밀번호가 틀렸습니다!'}, status=status.HTTP_401_UNAUTHORIZED)
 
         elif user is None:
-                return Response({'message': 'User not found!'}, status=status.HTTP_401_UNAUTHORIZED)
+                return Response({'message': '유저 정보가 존재하지 않습니다!'}, status=status.HTTP_401_UNAUTHORIZED)
         else:
-            return Response({'message': 'Login failed!'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'message': '로그인에 실패했습니다!'}, status=status.HTTP_400_BAD_REQUEST)
 
 class LogoutView(APIView):
     def post(self, request):
         res = JsonResponse({
-            "message": "Logged out"
+            "message": "로그아웃 완료"
         })
         res.delete_cookie('username')
         res.delete_cookie('access')
@@ -119,24 +119,27 @@ class CandidateView(APIView):
 
 class VoteView(APIView):
     def post(self, request):
-        candidate_name = self.request.data['candidate']
-        candidate = Candidate.objects.get(candidate_name=candidate_name)
-
-        user_name = request.COOKIES.get('username')
         try:
-            user = User.objects.get(username=user_name)
-        except User.DoesNotExist:
-            return Response({'message': '투표는 로그인이 필요합니다!'}, status=status.HTTP_400_BAD_REQUEST)
+            header_authorization = request.headers.get('Authorization', None)
+            access = jwt.decode(header_authorization, SECRET_KEY, algorithms=['HS256'])
+            user = User.objects.get(id=access["user_id"])
 
-        if not user.voted_be:  # 아직 투표하지 않은 투표자라면
-            candidate.vote_cnt = candidate.vote_cnt + 1
-            candidate.save()
-            user.voted_be = True
-            user.save()
-            return JsonResponse({
-                'message': 'success!',
-                'user_name': user_name,
-                'candidate_name': candidate_name,
-                'vote_cnt': candidate.vote_cnt}, status=HTTP_201_CREATED)
-        else:  # 이미 투표를 했다면 투표권 X
-            return JsonResponse({'message': '투표는 1회만 가능합니다.'}, status=status.HTTP_401_UNAUTHORIZED)
+        except jwt.exceptions.ExpiredSignatureError:
+            return Response({'message': '투표는 로그인이 필요합니다!'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        if user.is_authenticated:
+            candidate_name = self.request.data['candidate']
+            candidate = Candidate.objects.get(candidate_name=candidate_name)
+
+            if not user.voted_be:  # 아직 투표하지 않은 투표자라면
+                candidate.vote_cnt = candidate.vote_cnt + 1
+                candidate.save()
+                user.voted_be = True
+                user.save()
+                return JsonResponse({
+                    'message': '투표가 완료됐습니다!',
+                    'user_name': user.username,
+                    'candidate_name': candidate_name,
+                    'vote_cnt': candidate.vote_cnt}, status=HTTP_201_CREATED)
+            else:  # 이미 투표를 했다면 투표권 X
+                return JsonResponse({'message': '투표는 1회만 가능합니다!'}, status=status.HTTP_401_UNAUTHORIZED)
