@@ -8,7 +8,6 @@ from rest_framework import status, generics
 from rest_framework.response import Response
 from rest_framework.status import *
 from rest_framework.views import APIView
-from rest_framework.permissions import *
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from .serializers import *
@@ -76,9 +75,6 @@ class LoginView(APIView):
                     },
                     status=status.HTTP_200_OK
                 )
-                res.set_cookie("username", user.username, httponly=True)
-                res.set_cookie("access", access_token, httponly=True)
-                res.set_cookie("refresh", refresh_token, httponly=True)
                 return res
 
             else:
@@ -91,13 +87,8 @@ class LoginView(APIView):
 
 class LogoutView(APIView):
     def post(self, request):
-        res = JsonResponse({
-            "message": "로그아웃 완료"
-        })
-        res.delete_cookie('username')
-        res.delete_cookie('access')
-        res.delete_cookie('refresh')
-        return res
+        #Working....
+        return Response({"message": "로그아웃 완료"})
 
 class UserView(generics.GenericAPIView):
     def get(self, request):
