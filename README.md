@@ -12,7 +12,9 @@
 ![ㄷㄱㅇ](https://user-images.githubusercontent.com/77188666/170715384-e28c1167-df17-4d9f-ab6a-f2e6782ae2ce.JPG)
 
 ## API 문서
-https://yourzinc.notion.site/django-vote-15th-API-74b44c1773b44e1d9dd7c043e514a0b8
+[📕 Notion](https://yourzinc.notion.site/django-vote-15th-API-74b44c1773b44e1d9dd7c043e514a0b8)
+
+[📘 Postman](https://documenter.getpostman.com/view/20851554/UzBqpkpp)
 
 ---
 ### Docker와 Github Action을 이용한 자동 배포 
