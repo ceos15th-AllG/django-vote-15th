@@ -1,5 +1,3 @@
-import generics as generics
-
 from .serializers import *
 from rest_framework import viewsets, status
 from rest_framework.views import APIView
