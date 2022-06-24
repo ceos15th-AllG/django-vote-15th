@@ -1,9 +1,12 @@
+import generics as generics
+
 from .serializers import *
 from rest_framework import viewsets, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
+from django.http import Http404
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -12,7 +15,6 @@ class UserViewSet(viewsets.ModelViewSet):
 
 
 class SignUpAPIView(APIView):
-
     def post(self, request):
         serializer = SignUpSerializer(data=request.data)
         if serializer.is_valid():
@@ -53,6 +55,37 @@ class LoginAPIView(APIView):
             )
 
 
+class CandidateList(APIView):
+    def get(self, request, format=None):
+        candidates = Candidate.objects.all()
+        serializer = CandidateSerializer(candidates, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, format=None):
+        serializer = CandidateSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class CandidateDetail(APIView):
+    def get_object(self, pk):
+        try:
+            return Candidate.objects.get(pk=pk)
+        except Candidate.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk, format=None):
+        candidate = self.get_object(pk)
+        vote = {'vote_num': candidate.vote_num+1}
+        serializer = CandidateSerializer(candidate, data=vote, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 class TestAPIView(APIView):
     def get(self, request):
-        return Response({"msg": "hello"})
+        return Response({"test": "success"})
