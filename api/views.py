@@ -113,7 +113,7 @@ class SignInView(APIView):
                 }
             }
         }, status=200)
-        response.set_cookie('refresh_token', refresh_token, httponly=True, secure=True, samesite=None)
+        response.set_cookie('refresh_token', refresh_token, httponly=True, secure=True, samesite='None')
 
         return response
 
