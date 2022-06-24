@@ -24,24 +24,18 @@ class SignUpSerializer(serializers.ModelSerializer):
         user.save()
         return user
 
-    def auto_login(self, data):
-        email = data.get('email')
-        user = MyUser.objects.get(email=email)
 
-        jwt_token = TokenObtainPairSerializer.get_token(user)
-        refresh_token = str(jwt_token)
-        access_token = str(jwt_token.access_token)
-        user.refresh_token = refresh_token
-        user.save()
-        return {
-            'name': user.name,
-            'email': user.email,
-            'part': user.part,
-            'token': {
-                'access_token': access_token,
-                'refresh_token': refresh_token
-            }
+class GetTokenSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+
+        token['user'] = {
+            'user_id': user.id,
+            'part': user.part
         }
+
+        return token
 
 
 class SignInSerializer(serializers.ModelSerializer):
@@ -59,22 +53,7 @@ class SignInSerializer(serializers.ModelSerializer):
             if check_password(password, user.password) is False:
                 raise serializers.ValidationError('아이디 또는 비밀번호가 틀렸습니다.', code=400)
             else:
-                jwt_token = TokenObtainPairSerializer.get_token(user)
-                refresh_token = str(jwt_token)
-                access_token = str(jwt_token.access_token)
-                user.refresh_token = refresh_token
-                user.denied_access_token = ''
-                user.save()
-                return {
-                    'id': user.id,
-                    'name': user.name,
-                    'email': user.email,
-                    'part': user.part,
-                    'token': {
-                        'access_token': access_token,
-                        'refresh_token': refresh_token
-                    }
-                }
+                return user
         except MyUser.DoesNotExist:
             raise serializers.ValidationError('아이디 또는 비밀번호가 틀렸습니다.', code=400)
 

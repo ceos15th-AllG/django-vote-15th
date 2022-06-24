@@ -5,6 +5,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
 from rest_framework.parsers import JSONParser
 from rest_framework.response import Response
+from django.http import JsonResponse
 from api.serializers import *
 
 env = environ.Env(
@@ -85,8 +86,7 @@ class SignUpView(APIView):
         serializer = SignUpSerializer(data=data)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
-            res_data = SignInSerializer.user_login(None, data)
-            return Response(generate_success_form(201, '회원가입 성공', res_data), status=201)
+            return Response(generate_success_form(201, '회원가입 성공', {}), status=201)
         return Response(serializer.errors, status=400)
 
 
@@ -96,8 +96,26 @@ class SignInView(APIView):
     def post(self, request):
         data = JSONParser().parse(self.request)
         print(data)
-        res_data = SignInSerializer.user_login(None, data)
-        return Response(generate_success_form(200, '로그인 성공', res_data), status=200)
+        user = SignInSerializer.user_login(None, data)
+        jwt_token = GetTokenSerializer.get_token(user)
+        refresh_token = str(jwt_token)
+        access_token = str(jwt_token.access_token)
+        user.refresh_token = refresh_token
+        user.denied_access_token = ''
+        user.save()
+        response = JsonResponse({
+            'status': 200,
+            'message': '로그인 성공',
+            'detail': {
+                'email': user.email,
+                'token': {
+                    'access_token': access_token
+                }
+            }
+        }, status=200)
+        response.set_cookie('refresh_token', refresh_token, httponly=True, secure=True)
+
+        return response
 
 
 class RefreshTokenView(APIView):
@@ -106,6 +124,7 @@ class RefreshTokenView(APIView):
     def post(self, request):
         try:
             header_token = request.COOKIES.get('refresh_token')
+            print(header_token)
             if header_token is '':
                 raise exceptions.AuthenticationFailed('쿠키 값을 확인해주세요')
             user = MyUser.objects.get(refresh_token=header_token)
@@ -114,10 +133,7 @@ class RefreshTokenView(APIView):
             jwt_token = TokenObtainPairSerializer.get_token(get_user)
             access_token = str(jwt_token.access_token)
             return Response(generate_success_form(200, '토큰 재발급 성공', {
-                'id': user.id,
-                'name': user.name,
                 'email': user.email,
-                'part': user.part,
                 'token': {
                     'access_token': access_token,
                 }
