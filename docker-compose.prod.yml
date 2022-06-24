@@ -24,12 +24,9 @@ services:
     container_name: nginx
     build: ./config/nginx
     volumes:
-      - type: bind
-        source: /home/app/web/certbot/conf/live
-        target: /etc/nginx/ssl
-      - /home/app/web/certbot/data:/var/www/certbot
       - static:/home/app/web/static
       - media:/home/app/web/media
+      - /etc/letsencrypt/ssl:/etc/letsencrypt/live/momu-vote.kro.kr
     ports:
       - "80:80"
       - "443:443"

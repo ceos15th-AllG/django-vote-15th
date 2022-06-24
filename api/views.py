@@ -97,7 +97,7 @@ class VoteListView(views.APIView):
 
         candidate.count += 1
         candidate.save()
-        # user.is_voted = True
+        user.is_voted = True
         user.save()
         vote_serializer.save()
 
