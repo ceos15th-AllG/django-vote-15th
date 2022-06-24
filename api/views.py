@@ -92,7 +92,7 @@ class LogoutView(APIView):
         try:
             refresh = RefreshToken(request.data.get('refresh'))
             refresh.blacklist()
-            return Response({"message": "로그아웃 완료"}, status=status.HTTP_204_NO_CONTENT)
+            return Response({"message": "로그아웃 완료"}, status=status.HTTP_200_OK)
         except Exception:
             return Response({"message": "로그아웃이 불가한 상태입니다."}, status=status.HTTP_400_BAD_REQUEST)
             
