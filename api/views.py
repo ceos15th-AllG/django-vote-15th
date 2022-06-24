@@ -160,7 +160,13 @@ class LogoutView(APIView):
             user.refresh_token = ''
             user.denied_access_token = token[1]
             user.save()
-            return Response(generate_success_form(200, '로그아웃 성공', {}), status=200)
+            response = JsonResponse({
+                'status': 200,
+                'message': '로그아웃 성공',
+                'detail': {}
+            })
+            response.delete_cookie('refresh_token')
+            return response
         except MyUser.DoesNotExist:
             raise exceptions.ValidationError(detail='토큰 정보를 확인해주세요')
 
