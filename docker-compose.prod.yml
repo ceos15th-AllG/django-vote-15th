@@ -26,7 +26,6 @@ services:
     volumes:
       - static:/home/app/web/static
       - media:/home/app/web/media
-      - /etc/letsencrypt/ssl:/etc/letsencrypt/live/momu-vote.kro.kr
     ports:
       - "80:80"
       - "443:443"
