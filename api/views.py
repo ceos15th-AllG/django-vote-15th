@@ -103,7 +103,7 @@ class UserView(generics.GenericAPIView):
             header_authorization = request.headers.get('Authorization', None)
             access = jwt.decode(header_authorization, SECRET_KEY, algorithms=['HS256'])
             user = User.objects.get(id=access["user_id"])
-        except jwt.exceptions.ExpiredSignatureError:
+        except Exception:
             return Response({'message': '미 로그인 상태'}, status=status.HTTP_401_UNAUTHORIZED)
 
         if user.is_authenticated:
