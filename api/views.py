@@ -56,8 +56,14 @@ class LoginAPIView(APIView):
 
 
 class CandidateList(APIView):
-    def get(self, request, format=None):
-        candidates = Candidate.objects.all()
+    def get_object(self, part):
+        try:
+            return Candidate.objects.get(part=part)
+        except Candidate.DoesNotExist:
+            raise Http404
+
+    def get(self, request, part, format=None):
+        candidates = Candidate.objects.filter(part=part)
         serializer = CandidateSerializer(candidates, many=True)
         return Response(serializer.data)
 
@@ -76,7 +82,7 @@ class CandidateDetail(APIView):
         except Candidate.DoesNotExist:
             raise Http404
 
-    def get(self, request, pk, format=None):
+    def get(self, request, part, pk, format=None):
         candidate = self.get_object(pk)
         vote = {'vote_num': candidate.vote_num+1}
         serializer = CandidateSerializer(candidate, data=vote, partial=True)
