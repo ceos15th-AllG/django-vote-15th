@@ -5,7 +5,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
 from rest_framework.parsers import JSONParser
 from rest_framework.response import Response
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from api.serializers import *
 
 env = environ.Env(
@@ -113,7 +113,7 @@ class SignInView(APIView):
                 }
             }
         }, status=200)
-        response.set_cookie('refresh_token', refresh_token, httponly=True, secure=True)
+        response.set_cookie('refresh_token', refresh_token, httponly=True, secure=True, samesite=None)
 
         return response
 
