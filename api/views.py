@@ -92,9 +92,9 @@ class LogoutView(APIView):
         try:
             refresh = RefreshToken(request.data.get('refresh'))
             refresh.blacklist()
-            return Response({"message": "로그아웃 완료"})
+            return Response({"message": "로그아웃 완료"}, status=status.HTTP_204_NO_CONTENT)
         except Exception:
-            return Response({"message": "로그아웃이 불가한 상태입니다."})
+            return Response({"message": "로그아웃이 불가한 상태입니다."}, status=status.HTTP_400_BAD_REQUEST)
             
 
 class UserView(generics.GenericAPIView):
@@ -129,15 +129,27 @@ class VoteView(APIView):
             candidate_name = self.request.data['candidate']
             candidate = Candidate.objects.get(candidate_name=candidate_name)
 
-            if not user.voted_be:  # 아직 투표하지 않은 투표자라면
-                candidate.vote_cnt = candidate.vote_cnt + 1
+            if user.voted_fe and user.voted_be:
+                return Response({"message": '모든 파트의 투표를 완료하셨기에 재투표가 불가능합니다!'}, status=status.HTTP_401_UNAUTHORIZED)
+            if user.voted_fe and (candidate.part == '프론트엔드'):
+                return Response({"message": '프론트엔드 파트의 투표를 완료하셨기에 재투표가 불가능합니다!'}, status=status.HTTP_401_UNAUTHORIZED)
+            if user.voted_be and (candidate.part == '백엔드'):
+                return Response({"message": '백엔드 파트의 투표를 완료하셨기에 재투표가 불가능합니다!'}, status=status.HTTP_401_UNAUTHORIZED)
+            else:
+                if (not user.voted_be) and (candidate.part == '백엔드'):  # BE 투표
+                    user.voted_be = True
+                    candidate.vote_cnt = candidate.vote_cnt + 1
+
+                if (not user.voted_fe) and (candidate.part == '프론트엔드'): # FE 투표
+                    user.voted_fe = True
+                    candidate.vote_cnt = candidate.vote_cnt + 1
+
                 candidate.save()
-                user.voted_be = True
                 user.save()
-                return JsonResponse({
+
+                return Response({
                     'message': '투표가 완료됐습니다!',
                     'user_name': user.username,
                     'candidate_name': candidate_name,
+                    'part': candidate.part,
                     'vote_cnt': candidate.vote_cnt}, status=HTTP_201_CREATED)
-            else:  # 이미 투표를 했다면 투표권 X
-                return JsonResponse({'message': '투표는 1회만 가능합니다!'}, status=status.HTTP_401_UNAUTHORIZED)
