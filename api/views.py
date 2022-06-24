@@ -7,6 +7,7 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from django.http import Http404
+from rest_framework.permissions import IsAuthenticated
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -50,7 +51,6 @@ class LoginAPIView(APIView):
                     "message": "Login Success",
                     "refresh": str(token),
                     "access": str(token.access_token),
-
                 }
             )
 
@@ -76,6 +76,8 @@ class CandidateList(APIView):
 
 
 class CandidateDetail(APIView):
+    permissions_classes = [IsAuthenticated]
+
     def get_object(self, pk):
         try:
             return Candidate.objects.get(pk=pk)
