@@ -6,6 +6,8 @@ from .models import *
 from rest_framework import viewsets, permissions, generics, status
 from .serializer import *
 from knox.models import AuthToken
+from django.shortcuts import get_object_or_404
+from django.http import JsonResponse
 
 
 class SignUpApi(generics.GenericAPIView):
@@ -52,9 +54,63 @@ class UserApi(generics.RetrieveAPIView):
         return self.request.user
 
 
-class CandidateListApi(generics.RetrieveAPIView):
-    queryset = Candidate.objects.all()
-    serializer_class = CandidateSerializer
+class CandidateApi(APIView):
+
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self,request):
+        candidates = Candidate.objects.all().order_by('-count')
+        serializer = CandidateSerializer(candidates, many=True)
+        return Response(serializer.data)
+
+    def post(self,request):
+        serializer = CandidateSerializer(request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
+        serializer.save()
+        JsonResponse({
+            "message" : "successfully created"
+        }, status=status.HTTP_201_CREATED)
+
+
+class VoteApi(APIView):
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    def get(self, request):
+        candidates = Candidate.objects.all()
+        serializer = CandidateSerializer(candidates,many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        user = get_object_or_404(User, pk=request.user.id)
+        candidate_id = request.data['candidate']
+
+        candidate = get_object_or_404(Candidate, pk=candidate_id)
+
+        data = {'candidate': candidate.id, 'user': user.id}
+        vote_serializer = VoteSerializer(data=data)
+        if not vote_serializer.is_valid():
+            JsonResponse(
+                vote_serializer.errors,status.HTTP_400_BAD_REQUEST
+            )
+        if user.voteChecker :
+            JsonResponse({
+                "message": "you did it."
+            }, status.HTTP_400_BAD_REQUEST)
+
+        candidate.count+=1
+        candidate.save();
+        user.voteChecker=True
+        user.save()
+        vote_serializer.save()
+
+        return JsonResponse({
+            "message" : "thank you for your voting"
+        }, status.HTTP_201_CREATED)
+
+
+
+
 
 
 #
