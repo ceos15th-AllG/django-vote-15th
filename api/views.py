@@ -130,7 +130,7 @@ class RefreshTokenView(APIView):
             user = MyUser.objects.get(refresh_token=header_token)
             payload = jwt.decode(header_token, settings.SECRET_KEY, algorithms=['HS256'])
             get_user = MyUser.objects.get(id=payload['user_id'])
-            jwt_token = TokenObtainPairSerializer.get_token(get_user)
+            jwt_token = GetTokenSerializer.get_token(get_user)
             access_token = str(jwt_token.access_token)
             return Response(generate_success_form(200, '토큰 재발급 성공', {
                 'email': user.email,
