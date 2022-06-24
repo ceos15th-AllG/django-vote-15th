@@ -12,9 +12,10 @@
 
 ### 회원가입/로그인
 
-* simple-jwt로 회원가입 및 로그인 시 access_token/refresh_token 반환
-* 각각 1시간/24시간의 만료 기간을 가짐
-* access_token 만료 시 헤더에 refresh_token 담아서 api/refreshes로 요청 시 새로운 access_token 발급
+* simple-jwt로 회원가입 및 로그인 시 access_token/refresh_token 반환 
+* refresh_token은 쿠키(HttpOnly, Secure)에 담아서 반환
+* 각각 2시간/14일의 만료 기간을 가짐
+* access_token 만료 시 쿠키에 refresh_token 담아서 api/refreshes로 요청 시 새로운 access_token 발급
 * 회원가입 시 필요한 정보는 이름/이메일/비밀번호/파트 (이메일은 중복 불가)
 * 로그인 시 필요한 정보는 이메일/비밀번호
 
@@ -25,6 +26,10 @@
 * 본인한테 투표 불가능
 * 투표는 로그인 한 사용자만 이용 가능
 * 투표 결과는 파트별로 보여줌 (득표수 순 => 동수 득표면 이름 순)
+
+### 로그아웃
+* DB에 담긴 refresh_token은 blank로 초기화
+* 담겨온 access_token은 DB의 MyUser테이블의 denied_access_token에 저장 (해당 access_token으로 접근 시 401 반환)
 
 
 ### Https 
