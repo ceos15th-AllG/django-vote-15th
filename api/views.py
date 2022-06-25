@@ -32,8 +32,8 @@ class SignUpView(views.APIView):
                 'refresh': refresh,
             }, status=HTTP_201_CREATED)
 
-            response.set_cookie('access_token', access, httponly=True)
-            response.set_cookie('refresh_token', refresh, httponly=True)
+            response.set_cookie('access_token', access, httponly=True, secure=True, samesite=None)
+            response.set_cookie('refresh_token', refresh, httponly=True, secure=True, samesite=None)
 
             return response
 
@@ -60,8 +60,8 @@ class LoginView(views.APIView):
                 'is_voted': user.is_voted,
             }, status=HTTP_200_OK)
 
-            response.set_cookie('access_token', access, httponly=True)
-            response.set_cookie('refresh_token', refresh, httponly=True)
+            response.set_cookie('access_token', access, httponly=True, secure=True, samesite=None)
+            response.set_cookie('refresh_token', refresh, httponly=True, secure=True, samesite=None)
 
             return response
 
