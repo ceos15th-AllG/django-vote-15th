@@ -7,7 +7,8 @@ urlpatterns = [
     path("auth/signUp", SignUpApi.as_view()),
     path("auth/login", LoginApi.as_view()),
     path("auth/users", UserApi.as_view()),
-    path("candidates", CandidateApi.as_view())
+    path("auth/candidates", CandidateApi.as_view()),
+    path("auth/voting", VoteApi.as_view())
 
 ]
 

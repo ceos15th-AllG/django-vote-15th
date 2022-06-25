@@ -16,6 +16,8 @@ class Candidate(models.Model):
 
 
 class Vote(models.Model):
-    voter_name = models.OneToOneField(User, on_delete=models.CASCADE, related_name='vote_user')
-    candidate_name = models.ForeignKey(Candidate, on_delete=models.CASCADE, related_name='voted_candidate')
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='votes')
+    candidate = models.ForeignKey(Candidate, on_delete=models.CASCADE, related_name='votes')
+    #related_name의 설정관련
+    # https://fabl1106.github.io/django/2019/05/27/Django-26.-%EC%9E%A5%EA%B3%A0-related_name-%EC%84%A4%EC%A0%95%EB%B0%A9%EB%B2%95.html
 

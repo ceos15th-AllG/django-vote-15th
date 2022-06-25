@@ -56,20 +56,19 @@ class UserApi(generics.RetrieveAPIView):
 
 class CandidateApi(APIView):
 
-    permission_classes = [permissions.IsAuthenticated]
 
-    def get(self,request):
+    def get(self, request):
         candidates = Candidate.objects.all().order_by('-count')
         serializer = CandidateSerializer(candidates, many=True)
         return Response(serializer.data)
 
-    def post(self,request):
-        serializer = CandidateSerializer(request.data)
+    def post(self, request):
+        serializer = CandidateSerializer(data=request.data)
         if not serializer.is_valid():
-            return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         serializer.save()
-        JsonResponse({
-            "message" : "successfully created"
+        return JsonResponse({
+            "message": "successfully created"
         }, status=status.HTTP_201_CREATED)
 
 
@@ -83,30 +82,33 @@ class VoteApi(APIView):
 
     def post(self, request):
         user = get_object_or_404(User, pk=request.user.id)
+        if user.voteChecker :
+            return JsonResponse({
+                "message": "you already did it."
+            }, status = status.HTTP_400_BAD_REQUEST)
+        print(user.id)
+        print(request.data)
         candidate_id = request.data['candidate']
+        print("candidate")
 
         candidate = get_object_or_404(Candidate, pk=candidate_id)
 
         data = {'candidate': candidate.id, 'user': user.id}
         vote_serializer = VoteSerializer(data=data)
-        if not vote_serializer.is_valid():
-            JsonResponse(
-                vote_serializer.errors,status.HTTP_400_BAD_REQUEST
-            )
-        if user.voteChecker :
-            JsonResponse({
-                "message": "you did it."
-            }, status.HTTP_400_BAD_REQUEST)
 
-        candidate.count+=1
+        if not vote_serializer.is_valid():
+            return JsonResponse(
+                vote_serializer.errors, status=status.HTTP_400_BAD_REQUEST
+            )
+        candidate.count = candidate.count+1
         candidate.save();
         user.voteChecker=True
         user.save()
         vote_serializer.save()
 
         return JsonResponse({
-            "message" : "thank you for your voting"
-        }, status.HTTP_201_CREATED)
+            "message" : "Thx you for your voting"
+        }, status =status.HTTP_201_CREATED)
 
 
 
