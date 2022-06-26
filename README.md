@@ -35,7 +35,7 @@
   <li>user 모델 - 상속하여 사용 (AbstractUser)</li>
 </ul>
   
-<storng>죄송합니다.</strong>
+<strong>죄송합니다.</strong>
  
 
 
